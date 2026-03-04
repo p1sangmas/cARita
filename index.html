@@ -153,8 +153,22 @@
       function startAR() {
         document.getElementById('start-overlay').style.display = 'none';
         var sceneEl = document.querySelector('a-scene');
-        var arSystem = sceneEl.systems['mindar-image-system'];
-        arSystem.start();
+
+        function doStart() {
+          var arSystem = sceneEl.systems['mindar-image-system'];
+          if (!arSystem) {
+            showError('mindar-image-system not found on scene');
+            return;
+          }
+          arSystem.start();
+        }
+
+        // Wait for A-Frame scene to fully load before accessing systems
+        if (sceneEl.hasLoaded) {
+          doStart();
+        } else {
+          sceneEl.addEventListener('loaded', doStart, { once: true });
+        }
       }
 
       // Play/pause video when target enters or leaves frame
