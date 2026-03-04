@@ -7,7 +7,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>cARita</title>
-    <!-- mindar-image-aframe.prod.js bundles A-Frame — do NOT add a separate aframe script -->
+    <!-- A-Frame must load first -->
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <!-- MindAR A-Frame integration (requires A-Frame to already be defined) -->
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
     <style>
       html, body {
