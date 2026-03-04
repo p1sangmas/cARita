@@ -4,7 +4,6 @@
     <meta charset="utf-8" />
     <!-- maximum-scale=1 + user-scalable=no prevents pinch-zoom; viewport-fit=cover handles notch/Dynamic Island -->
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-    <!-- Fullscreen web-app behaviour on iOS when added to home screen -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>cARita</title>
@@ -18,13 +17,11 @@
         height: 100%;
         overflow: hidden;
         background: #000;
-        /* Prevent scroll bounce and pinch-zoom on iOS */
         touch-action: none;
         -webkit-user-select: none;
         user-select: none;
       }
 
-      /* Force the A-Frame canvas to fill the full viewport */
       a-scene {
         width: 100%;
         height: 100%;
@@ -37,16 +34,79 @@
         width: 100% !important;
         height: 100% !important;
       }
+
+      /* Start screen — provides the user gesture iOS requires before camera access */
+      #start-overlay {
+        position: fixed;
+        inset: 0;
+        background: #000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        gap: 16px;
+      }
+
+      #start-btn {
+        padding: 16px 48px;
+        font-size: 18px;
+        font-family: sans-serif;
+        font-weight: 600;
+        background: #fff;
+        color: #000;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      #start-hint {
+        color: rgba(255,255,255,0.5);
+        font-family: sans-serif;
+        font-size: 13px;
+        text-align: center;
+        padding: 0 24px;
+      }
+
+      /* Visible error overlay — shows JS errors on screen without needing DevTools */
+      #error-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 99999;
+        display: none;
+        background: rgba(180,0,0,0.9);
+        color: #fff;
+        font-family: monospace;
+        font-size: 12px;
+        padding: 12px;
+        max-height: 45%;
+        overflow-y: auto;
+        box-sizing: border-box;
+        white-space: pre-wrap;
+      }
     </style>
   </head>
   <body>
+
+    <!-- Error display — hidden until something goes wrong -->
+    <div id="error-overlay"></div>
+
+    <!-- Start overlay — tap provides the user gesture iOS needs to grant camera -->
+    <div id="start-overlay">
+      <button id="start-btn" onclick="startAR()">Tap to Start</button>
+      <p id="start-hint">Point your camera at the postcard</p>
+    </div>
+
     <a-scene
-      mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: yes; uiError: yes; uiScanning: yes;"
+      mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiLoading: yes; uiError: yes; uiScanning: yes;"
       vr-mode-ui="enabled: false"
       device-orientation-permission-ui="enabled: false"
     >
       <a-assets>
-        <!-- Preload the video; playsinline + muted required for autoplay on mobile -->
+        <!-- playsinline + muted required for autoplay on iOS/Android -->
         <video
           id="ar-video"
           src="./animation.mp4"
@@ -62,9 +122,8 @@
 
       <a-entity mindar-image-target="targetIndex: 0">
         <!--
-          width / height must match postcard aspect ratio.
-          Postcard: 6 in wide × 4 in tall (landscape) → aspect ratio 1 : 0.667
-          MindAR normalises target width to 1, so height = 4/6 ≈ 0.667
+          width / height match postcard aspect ratio.
+          Postcard: 6 in wide × 4 in tall (landscape) → width=1, height=0.667
         -->
         <a-video
           src="#ar-video"
@@ -77,17 +136,37 @@
     </a-scene>
 
     <script>
-      // Play video as soon as the target is found.
-      // Pause when the target is lost to save battery.
-      document.addEventListener("DOMContentLoaded", function () {
-        const video = document.getElementById("ar-video");
-        const target = document.querySelector("[mindar-image-target]");
+      // Surface any JS errors visibly on screen (no DevTools needed on phone)
+      function showError(msg) {
+        var el = document.getElementById('error-overlay');
+        el.style.display = 'block';
+        el.textContent += msg + '\n';
+      }
+      window.onerror = function (msg, src, line) {
+        showError(msg + '\n' + src + ':' + line);
+      };
+      window.addEventListener('unhandledrejection', function (e) {
+        showError('Unhandled promise: ' + e.reason);
+      });
 
-        target.addEventListener("targetFound", function () {
+      // Called by the Tap to Start button — user gesture satisfies iOS camera policy
+      function startAR() {
+        document.getElementById('start-overlay').style.display = 'none';
+        var sceneEl = document.querySelector('a-scene');
+        var arSystem = sceneEl.systems['mindar-image-system'];
+        arSystem.start();
+      }
+
+      // Play/pause video when target enters or leaves frame
+      document.addEventListener('DOMContentLoaded', function () {
+        var video = document.getElementById('ar-video');
+        var target = document.querySelector('[mindar-image-target]');
+
+        target.addEventListener('targetFound', function () {
           video.play();
         });
 
-        target.addEventListener("targetLost", function () {
+        target.addEventListener('targetLost', function () {
           video.pause();
         });
       });
