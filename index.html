@@ -6,34 +6,25 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>cARita</title>
+    <link rel="stylesheet" href="./style.css" />
     <!-- A-Frame must load before MindAR -->
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <!-- MindAR A-Frame integration -->
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
-    <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { background: #000; }
-
-      /* Visible error overlay — shows JS errors without needing DevTools -->
-      #error-overlay {
-        position: fixed;
-        top: 0; left: 0; right: 0;
-        z-index: 99999;
-        display: none;
-        background: rgba(180,0,0,0.9);
-        color: #fff;
-        font-family: monospace;
-        font-size: 12px;
-        padding: 12px;
-        max-height: 50%;
-        overflow-y: auto;
-        white-space: pre-wrap;
-      }
-    </style>
   </head>
   <body>
 
+    <!-- Error overlay: visible only when a JS error occurs -->
     <div id="error-overlay"></div>
+
+    <!-- Splash screen: shown on load, dismissed by user tap -->
+    <div id="splash">
+      <h1 class="splash-title">cARita</h1>
+      <div class="splash-divider"></div>
+      <p class="splash-subtitle">Point your camera at the postcard to reveal your message</p>
+      <button id="start-btn" onclick="startExperience()">Tap to Start</button>
+      <p class="splash-hint">Allow camera access when prompted</p>
+    </div>
 
     <a-scene
       mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: yes; uiError: yes; uiScanning: yes;"
@@ -55,6 +46,10 @@
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
       <a-entity mindar-image-target="targetIndex: 0">
+        <!--
+          Postcard: 6 in wide × 4 in tall (landscape)
+          MindAR normalises target width to 1 → height = 4/6 ≈ 0.667
+        -->
         <a-video
           src="#ar-video"
           width="1"
@@ -66,6 +61,7 @@
     </a-scene>
 
     <script>
+      // Surface JS errors visibly on screen (no DevTools needed on phone)
       function showError(msg) {
         var el = document.getElementById('error-overlay');
         el.style.display = 'block';
@@ -78,6 +74,14 @@
         showError('Promise rejection: ' + e.reason);
       });
 
+      // Dismiss splash with fade, then remove it from the DOM
+      function startExperience() {
+        var splash = document.getElementById('splash');
+        splash.classList.add('fade-out');
+        setTimeout(function () { splash.style.display = 'none'; }, 500);
+      }
+
+      // Play / pause video with target visibility
       document.addEventListener('DOMContentLoaded', function () {
         var video = document.getElementById('ar-video');
         var target = document.querySelector('[mindar-image-target]');

@@ -1,0 +1,102 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #000;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif;
+}
+
+/* ── Error overlay ───────────────────────────────────────────── */
+#error-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 99999;
+  display: none;
+  background: rgba(160, 0, 0, 0.92);
+  color: #fff;
+  font-family: monospace;
+  font-size: 12px;
+  padding: 12px 16px;
+  max-height: 50%;
+  overflow-y: auto;
+  white-space: pre-wrap;
+}
+
+/* ── Splash screen ───────────────────────────────────────────── */
+#splash {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 32px;
+  gap: 12px;
+  /* Fade-out transition on dismiss */
+  opacity: 1;
+  transition: opacity 0.5s ease;
+}
+
+#splash.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.splash-title {
+  color: #fff;
+  font-size: 52px;
+  font-weight: 700;
+  letter-spacing: -1.5px;
+  line-height: 1;
+}
+
+.splash-divider {
+  width: 40px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 2px;
+  margin: 8px 0;
+}
+
+.splash-subtitle {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 15px;
+  line-height: 1.6;
+  text-align: center;
+  max-width: 260px;
+}
+
+#start-btn {
+  margin-top: 32px;
+  padding: 16px 52px;
+  font-size: 17px;
+  font-weight: 600;
+  font-family: inherit;
+  color: #000;
+  background: #fff;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  /* Remove blue flash on tap (iOS) */
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s ease, opacity 0.12s ease;
+}
+
+#start-btn:active {
+  transform: scale(0.95);
+  opacity: 0.8;
+}
+
+.splash-hint {
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 12px;
+  text-align: center;
+  margin-top: 8px;
+}
