@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <!-- maximum-scale=1 + user-scalable=no prevents pinch-zoom; viewport-fit=cover handles notch/Dynamic Island -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <!-- Fullscreen web-app behaviour on iOS when added to home screen -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>cARita</title>
+    <!-- mindar-image-aframe.prod.js bundles A-Frame — do NOT add a separate aframe script -->
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #000;
+        /* Prevent scroll bounce and pinch-zoom on iOS */
+        touch-action: none;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+
+      /* Force the A-Frame canvas to fill the full viewport */
+      a-scene {
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0;
+        left: 0;
+      }
+
+      a-scene canvas {
+        width: 100% !important;
+        height: 100% !important;
+      }
+    </style>
+  </head>
+  <body>
+    <a-scene
+      mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: yes; uiError: yes; uiScanning: yes;"
+      vr-mode-ui="enabled: false"
+      device-orientation-permission-ui="enabled: false"
+    >
+      <a-assets>
+        <!-- Preload the video; playsinline + muted required for autoplay on mobile -->
+        <video
+          id="ar-video"
+          src="./animation.mp4"
+          preload="auto"
+          playsinline
+          muted
+          loop
+          webkit-playsinline
+        ></video>
+      </a-assets>
+
+      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+      <a-entity mindar-image-target="targetIndex: 0">
+        <!--
+          width / height must match postcard aspect ratio.
+          Postcard: 6 in wide × 4 in tall (landscape) → aspect ratio 1 : 0.667
+          MindAR normalises target width to 1, so height = 4/6 ≈ 0.667
+        -->
+        <a-video
+          src="#ar-video"
+          width="1"
+          height="0.667"
+          position="0 0 0"
+          rotation="0 0 0"
+        ></a-video>
+      </a-entity>
+    </a-scene>
+
+    <script>
+      // Play video as soon as the target is found.
+      // Pause when the target is lost to save battery.
+      document.addEventListener("DOMContentLoaded", function () {
+        const video = document.getElementById("ar-video");
+        const target = document.querySelector("[mindar-image-target]");
+
+        target.addEventListener("targetFound", function () {
+          video.play();
+        });
+
+        target.addEventListener("targetLost", function () {
+          video.pause();
+        });
+      });
+    </script>
+  </body>
+</html>
