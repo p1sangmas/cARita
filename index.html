@@ -14,10 +14,10 @@
   </head>
   <body>
 
-    <!-- Error overlay: visible only when a JS error occurs -->
+    <!-- JS error display -->
     <div id="error-overlay"></div>
 
-    <!-- Splash screen: shown on load, dismissed by user tap -->
+    <!-- Splash screen -->
     <div id="splash">
       <h1 class="splash-title">cARita</h1>
       <div class="splash-divider"></div>
@@ -26,8 +26,22 @@
       <p class="splash-hint">Allow camera access when prompted</p>
     </div>
 
+    <!-- Minimal scan frame (hidden until splash dismissed, hidden again when target found) -->
+    <div id="scan-ui">
+      <div class="scan-frame">
+        <div class="scan-corner tl"></div>
+        <div class="scan-corner tr"></div>
+        <div class="scan-corner bl"></div>
+        <div class="scan-corner br"></div>
+      </div>
+      <span class="scan-label">Point at postcard</span>
+    </div>
+
+    <!-- Download button (hidden until splash dismissed) -->
+    <a id="download-btn" href="./animation.mp4" download="animation.mp4">⬇ Save Video</a>
+
     <a-scene
-      mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: yes; uiError: yes; uiScanning: yes;"
+      mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: no; uiError: yes; uiScanning: no;"
       vr-mode-ui="enabled: false"
       device-orientation-permission-ui="enabled: false"
     >
@@ -61,7 +75,6 @@
     </a-scene>
 
     <script>
-      // Surface JS errors visibly on screen (no DevTools needed on phone)
       function showError(msg) {
         var el = document.getElementById('error-overlay');
         el.style.display = 'block';
@@ -74,19 +87,30 @@
         showError('Promise rejection: ' + e.reason);
       });
 
-      // Dismiss splash with fade, then remove it from the DOM
       function startExperience() {
         var splash = document.getElementById('splash');
         splash.classList.add('fade-out');
         setTimeout(function () { splash.style.display = 'none'; }, 500);
+
+        // Reveal scan UI and download button
+        document.getElementById('scan-ui').style.display = 'flex';
+        document.getElementById('download-btn').style.display = 'block';
       }
 
-      // Play / pause video with target visibility
       document.addEventListener('DOMContentLoaded', function () {
-        var video = document.getElementById('ar-video');
+        var video  = document.getElementById('ar-video');
+        var scanUI = document.getElementById('scan-ui');
         var target = document.querySelector('[mindar-image-target]');
-        target.addEventListener('targetFound', function () { video.play(); });
-        target.addEventListener('targetLost', function () { video.pause(); });
+
+        target.addEventListener('targetFound', function () {
+          scanUI.classList.add('hidden');    // hide scan frame while video plays
+          video.play();
+        });
+
+        target.addEventListener('targetLost', function () {
+          scanUI.classList.remove('hidden'); // bring scan frame back
+          video.pause();
+        });
       });
     </script>
   </body>

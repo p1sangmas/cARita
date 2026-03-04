@@ -39,7 +39,6 @@ body {
   justify-content: center;
   padding: 40px 32px;
   gap: 12px;
-  /* Fade-out transition on dismiss */
   opacity: 1;
   transition: opacity 0.5s ease;
 }
@@ -84,7 +83,6 @@ body {
   border: none;
   border-radius: 50px;
   cursor: pointer;
-  /* Remove blue flash on tap (iOS) */
   -webkit-tap-highlight-color: transparent;
   transition: transform 0.12s ease, opacity 0.12s ease;
 }
@@ -99,4 +97,84 @@ body {
   font-size: 12px;
   text-align: center;
   margin-top: 8px;
+}
+
+/* ── Minimalist scan UI ──────────────────────────────────────── */
+#scan-ui {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: none; /* shown after splash dismissed */
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  pointer-events: none; /* pass touches through to camera */
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+#scan-ui.hidden {
+  opacity: 0;
+}
+
+/* Corner-bracket frame sized to postcard ratio (6:4 landscape) */
+.scan-frame {
+  position: relative;
+  width: 72vw;
+  height: calc(72vw * 0.667);
+  animation: scan-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes scan-pulse {
+  0%, 100% { opacity: 0.5; }
+  50%       { opacity: 1;   }
+}
+
+/* Four L-shaped corners */
+.scan-corner {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #fff;
+}
+
+.scan-corner.tl { top: 0;    left: 0;  border-right: none; border-bottom: none; }
+.scan-corner.tr { top: 0;    right: 0; border-left:  none; border-bottom: none; }
+.scan-corner.bl { bottom: 0; left: 0;  border-right: none; border-top:    none; }
+.scan-corner.br { bottom: 0; right: 0; border-left:  none; border-top:    none; }
+
+.scan-label {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+/* ── Download button ─────────────────────────────────────────── */
+#download-btn {
+  position: fixed;
+  bottom: calc(28px + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 600;
+  display: none; /* shown after splash dismissed */
+  padding: 12px 28px;
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  text-decoration: none;
+  border-radius: 50px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s ease;
+}
+
+#download-btn:active {
+  background: rgba(255, 255, 255, 0.22);
 }
