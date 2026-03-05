@@ -204,8 +204,9 @@ body {
 /* Corner-bracket frame sized to postcard ratio (6:4 landscape) */
 .scan-frame {
   position: relative;
-  width: 72vw;
-  height: calc(72vw * 0.667);
+  --frame-w: min(72vw, 360px);
+  width: var(--frame-w);
+  height: calc(var(--frame-w) * 0.667);
   animation: scan-pulse 2.4s ease-in-out infinite;
 }
 
@@ -251,16 +252,14 @@ body {
   z-index: 600;
   display: none;
   padding: 12px 28px;
-  background: rgba(255, 255, 255, 0.12);
-  color: rgba(255, 255, 255, 0.85);
+  background: #fff;
+  color: #000;
   font-size: 14px;
   font-weight: 500;
   font-family: inherit;
   text-decoration: none;
   border-radius: 50px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  border: none;
   white-space: nowrap;
   -webkit-tap-highlight-color: transparent;
   transition: background 0.15s ease;
@@ -268,7 +267,29 @@ body {
 }
 
 #download-btn:active {
-  background: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.85);
+}
+
+/* ── Greeting overlay ────────────────────────────────────────── */
+#greeting {
+  position: fixed;
+  top: calc(72px + env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 600;
+  display: none;
+  padding: 10px 24px;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  font-family: inherit;
+  text-align: center;
+  white-space: nowrap;
+  border-radius: 50px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  animation: fade-down 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 /* ── Torch button ────────────────────────────────────────────── */
