@@ -74,13 +74,22 @@ body {
   animation: fade-down 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+.splash-slogan {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+  font-style: italic;
+  letter-spacing: 0.4px;
+  text-align: center;
+  animation: fade-in 0.6s ease 0.12s both;
+}
+
 .splash-divider {
   width: 40px;
   height: 2px;
   background: rgba(255, 255, 255, 0.25);
   border-radius: 2px;
   margin: 8px 0;
-  animation: fade-in 0.6s ease 0.15s both;
+  animation: fade-in 0.6s ease 0.22s both;
 }
 
 .splash-subtitle {
@@ -261,3 +270,29 @@ body {
 #download-btn:active {
   background: rgba(255, 255, 255, 0.22);
 }
+
+/* ── Torch button ────────────────────────────────────────────── */
+#torch-btn {
+  position: fixed; top: calc(16px + env(safe-area-inset-top)); right: 20px;
+  z-index: 600; pointer-events: auto; display: none;
+  padding: 10px 20px; background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.85);
+  font-size: 14px; font-weight: 500; font-family: inherit;
+  border: 1px solid rgba(255,255,255,0.18); border-radius: 50px; cursor: pointer;
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  -webkit-tap-highlight-color: transparent; transition: background 0.15s ease;
+  animation: fade-in 0.5s ease 0.2s both;
+}
+#torch-btn:active { background: rgba(255,255,255,0.22); }
+#torch-btn.torch-on { background: rgba(255,220,80,0.22); border-color: rgba(255,220,80,0.4); color: rgba(255,220,80,0.95); }
+
+/* ── AR loader ───────────────────────────────────────────────── */
+#ar-loader { display: none; flex-direction: column; align-items: center; gap: 12px; }
+.ar-loader-ring {
+  width: 36px; height: 36px;
+  border: 2.5px solid rgba(255,255,255,0.15);
+  border-top-color: rgba(255,255,255,0.85);
+  border-radius: 50%;
+  animation: loader-spin 0.9s linear infinite;
+}
+@keyframes loader-spin { to { transform: rotate(360deg); } }
+.ar-loader-text { color: rgba(255,255,255,0.45); font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; }

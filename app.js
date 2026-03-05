@@ -1,3 +1,29 @@
+// ── Torch state ───────────────────────────────────────────────
+var torchActive = false;
+var torchTrack  = null;
+
+function detectTorchSupport() {
+  var videos = document.querySelectorAll('video');
+  for (var i = 0; i < videos.length; i++) {
+    if (videos[i].srcObject) {
+      var track = videos[i].srcObject.getVideoTracks()[0];
+      if (!track) continue;
+      track.applyConstraints({ advanced: [{ torch: false }] })
+        .then(function () { torchTrack = track; document.getElementById('torch-btn').style.display = 'block'; })
+        .catch(function () { /* not supported, button stays hidden */ });
+      return;
+    }
+  }
+}
+
+function toggleTorch() {
+  if (!torchTrack) return;
+  torchActive = !torchActive;
+  torchTrack.applyConstraints({ advanced: [{ torch: torchActive }] })
+    .then(function () { document.getElementById('torch-btn').classList.toggle('torch-on', torchActive); })
+    .catch(function () { document.getElementById('torch-btn').style.display = 'none'; torchTrack = null; });
+}
+
 // ── Error display ─────────────────────────────────────────────
 function showError(msg) {
   var el = document.getElementById('error-overlay');
@@ -20,10 +46,31 @@ function startExperience() {
   setTimeout(function () { splash.style.display = 'none'; }, 500);
   document.getElementById('scan-ui').style.display = 'flex';
   // download-btn stays hidden until a target is found
+
+  // Feature 4 — loading indicator while MindAR initialises
+  var sceneEl = document.querySelector('a-scene');
+  if (!sceneEl.hasLoaded) {
+    var arLoader = document.getElementById('ar-loader');
+    arLoader.style.display = 'flex';
+    sceneEl.addEventListener('loaded', function () {
+      arLoader.style.display = 'none';
+      detectTorchSupport();
+    }, { once: true });
+  } else {
+    detectTorchSupport();
+  }
 }
 
 // ── Scan → splash (back button) ───────────────────────────────
 function goHome() {
+  // Feature 8 — torch cleanup
+  if (torchTrack && torchActive) {
+    torchTrack.applyConstraints({ advanced: [{ torch: false }] }).catch(function(){});
+  }
+  torchActive = false; torchTrack = null;
+  document.getElementById('torch-btn').style.display = 'none';
+  document.getElementById('torch-btn').classList.remove('torch-on');
+
   // Pause all videos
   document.querySelectorAll('a-assets video').forEach(function (v) { v.pause(); });
   // Reset scan UI and download button
@@ -48,6 +95,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var filename = target.dataset.download;
 
     target.addEventListener('targetFound', function () {
+      navigator.vibrate && navigator.vibrate(60);
       scanUI.classList.add('hidden');
       downloadBtn.href = './' + filename;
       downloadBtn.setAttribute('download', filename);

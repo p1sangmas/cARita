@@ -6,6 +6,15 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>cARita</title>
+    <meta property="og:title"       content="cARita" />
+    <meta property="og:description" content="Still on the outside. Alive on the inside." />
+    <meta property="og:image"       content="https://carita.pages.dev/assets/postcard.png" />
+    <meta property="og:url"         content="https://carita.pages.dev" />
+    <meta property="og:type"        content="website" />
+    <meta name="twitter:card"        content="summary_large_image" />
+    <meta name="twitter:title"       content="cARita" />
+    <meta name="twitter:description" content="Still on the outside. Alive on the inside." />
+    <meta name="twitter:image"       content="https://carita.pages.dev/assets/postcard.png" />
     <link rel="stylesheet" href="./style.css" />
     <!-- A-Frame must load before MindAR -->
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
@@ -20,6 +29,7 @@
     <!-- Splash screen -->
     <div id="splash">
       <h1 class="splash-title">c<span class="gradient-ar">AR</span>ita</h1>
+      <p class="splash-slogan">Still on the outside. Alive on the inside.</p>
       <div class="splash-divider"></div>
       <p class="splash-subtitle">Point your camera at the postcard to reveal your message</p>
       <button id="start-btn" onclick="startExperience()">Tap to Start</button>
@@ -29,6 +39,11 @@
     <!-- Minimal scan frame (hidden until splash dismissed, hidden again when target found) -->
     <div id="scan-ui">
       <button id="home-btn" onclick="goHome()">&#8592; Back</button>
+      <button id="torch-btn" onclick="toggleTorch()">&#9728; Torch</button>
+      <div id="ar-loader">
+        <div class="ar-loader-ring"></div>
+        <span class="ar-loader-text">Loading&hellip;</span>
+      </div>
       <div class="scan-frame">
         <div class="scan-corner tl"></div>
         <div class="scan-corner tr"></div>
