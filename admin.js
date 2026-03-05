@@ -65,21 +65,126 @@ async function loadTargets() {
 
 function renderTargets(targets) {
   var container = document.getElementById('targets-list');
+  hideStatus('targets-status');
+  container.innerHTML = '';
+
   if (!targets.length) {
     container.innerHTML = '<p class="empty-state">No targets yet. Add one below.</p>';
     return;
   }
 
-  container.innerHTML = targets.map(function (t) {
-    return (
-      '<div class="target-row">' +
-        '<span class="target-index">' + t.index + '</span>' +
-        '<img class="target-thumb" src="/r2/targets/' + t.index + '/image.jpg" alt="" onerror="this.style.opacity=0.2" />' +
-        '<span class="target-message">' + (t.message || '(no message)') + '</span>' +
-      '</div>'
-    );
-  }).join('');
+  targets.forEach(function (t) {
+    var row = document.createElement('div');
+    row.className = 'target-row';
+
+    var indexEl = document.createElement('span');
+    indexEl.className = 'target-index';
+    indexEl.textContent = t.index;
+
+    var thumb = document.createElement('img');
+    thumb.className = 'target-thumb';
+    thumb.src = '/r2/' + (t.imageKey || 'targets/' + t.index + '/image.jpg');
+    thumb.alt = '';
+    thumb.onerror = function () { this.style.opacity = 0.2; };
+
+    var msgEl = document.createElement('span');
+    msgEl.className = 'target-message';
+    msgEl.textContent = t.message || '(no message)';
+
+    var editBtn = document.createElement('button');
+    editBtn.className = 'btn-icon';
+    editBtn.title = 'Edit message';
+    editBtn.textContent = '✎';
+
+    var delBtn = document.createElement('button');
+    delBtn.className = 'btn-icon btn-icon-delete';
+    delBtn.title = 'Delete target';
+    delBtn.textContent = '×';
+
+    row.appendChild(indexEl);
+    row.appendChild(thumb);
+    row.appendChild(msgEl);
+    row.appendChild(editBtn);
+    row.appendChild(delBtn);
+    container.appendChild(row);
+
+    editBtn.addEventListener('click', function () { startEdit(row, msgEl, editBtn, t); });
+    delBtn.addEventListener('click',  function () { deleteTarget(t.index); });
+  });
 }
+
+// ── Inline message edit ──────────────────────────────────────────────────────
+function startEdit(row, msgEl, editBtn, t) {
+  var input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'edit-inline';
+  input.value = t.message || '';
+
+  var saveBtn = document.createElement('button');
+  saveBtn.className = 'btn-icon btn-icon-save';
+  saveBtn.textContent = '✓';
+
+  var cancelBtn = document.createElement('button');
+  cancelBtn.className = 'btn-icon';
+  cancelBtn.textContent = '✕';
+
+  row.replaceChild(input, msgEl);
+  editBtn.replaceWith(saveBtn, cancelBtn);
+  input.focus();
+
+  saveBtn.addEventListener('click', function () {
+    saveMessage(t.index, input.value.trim());
+  });
+  cancelBtn.addEventListener('click', loadTargets);
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter')  saveMessage(t.index, input.value.trim());
+    if (e.key === 'Escape') loadTargets();
+  });
+}
+
+async function saveMessage(index, message) {
+  try {
+    var res = await fetch('/api/update-target', {
+      method: 'PATCH',
+      headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders()),
+      body: JSON.stringify({ index: index, message: message }),
+    });
+    if (res.status === 401) { signOut(); return; }
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    await loadTargets();
+    showStatus('targets-status', 'success', 'Message updated.');
+  } catch (err) {
+    showStatus('targets-status', 'error', 'Failed to save: ' + err.message);
+  }
+}
+
+// ── Delete target ────────────────────────────────────────────────────────────
+async function deleteTarget(index) {
+  if (!confirm('Delete target ' + index + '?\n\nThis removes its image and video from R2. You will need to Compile & Upload afterwards.')) return;
+
+  try {
+    var res = await fetch('/api/delete-target?index=' + index, {
+      method: 'DELETE',
+      headers: authHeaders(),
+    });
+    if (res.status === 401) { signOut(); return; }
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    currentTargets = await res.json();
+    renderTargets(currentTargets);
+    showStatus('targets-status', 'success', 'Target deleted. Compile & Upload to apply changes to the AR app.');
+  } catch (err) {
+    showStatus('targets-status', 'error', 'Failed to delete: ' + err.message);
+  }
+}
+
+// ── Video preview ────────────────────────────────────────────────────────────
+document.getElementById('video-input').addEventListener('change', function () {
+  var preview = document.getElementById('video-preview');
+  var file = this.files[0];
+  if (!file) { preview.style.display = 'none'; return; }
+  preview.src = URL.createObjectURL(file);
+  preview.style.display = 'block';
+});
 
 // ── Add target ───────────────────────────────────────────────────────────────
 document.getElementById('add-form').addEventListener('submit', async function (e) {
@@ -134,6 +239,10 @@ document.getElementById('add-form').addEventListener('submit', async function (e
     if (!vidRes.ok) throw new Error('Video upload failed: HTTP ' + vidRes.status);
 
     showStatus('add-status', 'success', 'Target ' + index + ' added. Remember to Compile & Upload below.');
+    var preview = document.getElementById('video-preview');
+    URL.revokeObjectURL(preview.src);
+    preview.src = '';
+    preview.style.display = 'none';
     document.getElementById('add-form').reset();
     loadTargets();
 
@@ -177,7 +286,8 @@ async function compile() {
       await new Promise(function (resolve, reject) {
         img.onload = resolve;
         img.onerror = function () { reject(new Error('Could not load image for target ' + t.index)); };
-        img.src = '/r2/targets/' + t.index + '/image.jpg?' + Date.now(); // cache-bust
+        var imgPath = t.imageKey || ('targets/' + t.index + '/image.jpg');
+        img.src = '/r2/' + imgPath + '?' + Date.now(); // cache-bust
       });
       imageElements.push(img);
       setProgress(Math.round(((i + 1) / currentTargets.length) * 20), 'Loaded ' + (i + 1) + ' of ' + currentTargets.length + ' images…');

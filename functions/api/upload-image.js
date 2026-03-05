@@ -34,8 +34,13 @@ export async function onRequestPost(context) {
     httpMetadata: { contentType: imageFile.type || 'image/jpeg' },
   });
 
-  // Append target metadata to KV
-  targets.push({ index, message, videoKey: `targets/${index}/video.mp4` });
+  // Append target metadata to KV (imageKey/videoKey track actual R2 paths after any reindex)
+  targets.push({
+    index,
+    message,
+    imageKey: `targets/${index}/image.jpg`,
+    videoKey: `targets/${index}/video.mp4`,
+  });
   await env.KV.put('targets', JSON.stringify(targets));
 
   return new Response(JSON.stringify({ index }), {

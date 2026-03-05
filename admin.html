@@ -213,6 +213,57 @@
         line-height: 1.6;
         margin-bottom: 4px;
       }
+
+      /* ── Target row action buttons ─────────── */
+      .btn-icon {
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 6px;
+        color: rgba(255,255,255,0.35);
+        font-size: 13px;
+        line-height: 1;
+        padding: 5px 9px;
+        cursor: pointer;
+        flex-shrink: 0;
+        font-family: inherit;
+        font-weight: 400;
+        border-radius: 6px;
+        transition: color 0.15s, border-color 0.15s;
+      }
+      .btn-icon:active { transform: scale(0.95); }
+      .btn-icon:hover  { color: rgba(255,255,255,0.7); border-color: rgba(255,255,255,0.25); }
+
+      .btn-icon-delete       { color: rgba(255,80,80,0.45);  border-color: rgba(255,80,80,0.15); }
+      .btn-icon-delete:hover { color: rgba(255,80,80,0.9);   border-color: rgba(255,80,80,0.4);  }
+
+      .btn-icon-save       { color: rgba(80,200,120,0.6);  border-color: rgba(80,200,120,0.2); }
+      .btn-icon-save:hover { color: rgba(80,200,120,1);    border-color: rgba(80,200,120,0.5); }
+
+      /* ── Inline message editor ─────────────── */
+      .edit-inline {
+        flex: 1;
+        min-width: 0;
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 6px;
+        color: #e0e0e0;
+        font-size: 13px;
+        font-family: inherit;
+        padding: 4px 8px;
+        outline: none;
+      }
+      .edit-inline:focus { border-color: rgba(255,255,255,0.35); }
+
+      /* ── Video preview ─────────────────────── */
+      #video-preview {
+        display: none;
+        width: 100%;
+        max-height: 220px;
+        margin-top: 10px;
+        border-radius: 8px;
+        background: #000;
+        border: 1px solid rgba(255,255,255,0.08);
+      }
     </style>
   </head>
   <body>
@@ -246,6 +297,7 @@
         <div id="targets-list">
           <p class="empty-state">Loading…</p>
         </div>
+        <div id="targets-status" class="status"></div>
       </section>
 
       <!-- Add target -->
@@ -257,6 +309,7 @@
 
           <label>Overlay Video (MP4)</label>
           <input type="file" id="video-input" accept="video/*" required />
+          <video id="video-preview" controls muted playsinline></video>
 
           <label>Message (shown on scan)</label>
           <input type="text" id="message-input" placeholder="Location, Date" />
