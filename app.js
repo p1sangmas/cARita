@@ -51,6 +51,10 @@ document.addEventListener('DOMContentLoaded', function () {
       scanUI.classList.add('hidden');
       downloadBtn.href = './' + filename;
       downloadBtn.setAttribute('download', filename);
+      // Reset animation so the spring replays on every detection
+      downloadBtn.style.animation = 'none';
+      downloadBtn.offsetHeight;   // force reflow
+      downloadBtn.style.animation = '';
       downloadBtn.style.display = 'block';
       video.play();
     });
