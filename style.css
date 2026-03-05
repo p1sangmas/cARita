@@ -56,6 +56,27 @@ body {
   line-height: 1;
 }
 
+/* ── Animated gradient "AR" ──────────────────────────────────── */
+.gradient-ar {
+  background: linear-gradient(
+    45deg,
+    #2A7B9B,
+    #57C785,
+    #EDDD53,
+    #2A7B9B   /* repeat first colour for seamless loop */
+  );
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradient-shift 10s linear infinite;
+}
+
+@keyframes gradient-shift {
+  0%   { background-position: 0%   center; }
+  100% { background-position: 300% center; }
+}
+
 .splash-divider {
   width: 40px;
   height: 2px;
@@ -97,6 +118,32 @@ body {
   font-size: 12px;
   text-align: center;
   margin-top: 8px;
+}
+
+/* ── Back to home button ─────────────────────────────────────── */
+#home-btn {
+  position: fixed;
+  top: calc(16px + env(safe-area-inset-top));
+  left: 20px;
+  z-index: 600;
+  pointer-events: auto; /* override parent pointer-events: none */
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 50px;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s ease;
+}
+
+#home-btn:active {
+  background: rgba(255, 255, 255, 0.22);
 }
 
 /* ── Minimalist scan UI ──────────────────────────────────────── */
