@@ -104,6 +104,21 @@
         margin-top: 16px;
       }
 
+      .btn-ghost {
+        display: inline-block;
+        text-decoration: none;
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 50px;
+        color: rgba(255,255,255,0.5);
+        font-size: 14px;
+        font-weight: 500;
+        font-family: inherit;
+        padding: 11px 16px;
+        margin-top: 10px;
+      }
+      .btn-ghost:hover { background: rgba(255,255,255,0.12); }
+
       .btn-compile {
         background: linear-gradient(135deg, #2A7B9B, #57C785);
         color: #fff;
@@ -118,6 +133,7 @@
         padding: 7px 16px;
         font-size: 12px;
         float: right;
+        text-decoration: none;
       }
 
       /* ── Targets list ──────────────────────── */
@@ -281,6 +297,7 @@
           <input type="password" id="token-input" placeholder="Paste your token here" autocomplete="off" />
           <button type="submit" class="btn-primary">Sign In</button>
         </form>
+        <a href="/" class="btn-primary btn-ghost">Main page</a>
         <div id="auth-status" class="status"></div>
       </section>
     </div>
