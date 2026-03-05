@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>cARita Admin</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+
+      body {
+        background: #0a0a0a;
+        color: #e0e0e0;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif;
+        font-size: 14px;
+        min-height: 100vh;
+        padding: 32px 20px 60px;
+      }
+
+      h1 {
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        margin-bottom: 4px;
+      }
+      h1 span {
+        background: linear-gradient(45deg, #2A7B9B, #57C785, #EDDD53);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .tagline {
+        color: rgba(255,255,255,0.3);
+        font-size: 12px;
+        margin-bottom: 32px;
+      }
+
+      h2 {
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: rgba(255,255,255,0.4);
+        margin-bottom: 12px;
+      }
+
+      section { margin-bottom: 36px; }
+
+      /* ── Auth ──────────────────────────────── */
+      #auth-section { max-width: 360px; }
+
+      .auth-desc {
+        color: rgba(255,255,255,0.45);
+        font-size: 13px;
+        line-height: 1.6;
+        margin-bottom: 16px;
+      }
+
+      /* ── Inputs ────────────────────────────── */
+      label {
+        display: block;
+        color: rgba(255,255,255,0.5);
+        font-size: 12px;
+        margin-bottom: 6px;
+        margin-top: 14px;
+      }
+      label:first-of-type { margin-top: 0; }
+
+      input[type="password"],
+      input[type="text"],
+      input[type="file"] {
+        width: 100%;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 8px;
+        color: #e0e0e0;
+        font-size: 14px;
+        font-family: inherit;
+        padding: 10px 12px;
+        outline: none;
+        transition: border-color 0.15s;
+      }
+      input:focus { border-color: rgba(255,255,255,0.3); }
+      input[type="file"] { padding: 8px 12px; cursor: pointer; }
+
+      /* ── Buttons ───────────────────────────── */
+      button {
+        font-family: inherit;
+        font-size: 14px;
+        font-weight: 500;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: opacity 0.15s, transform 0.12s;
+        -webkit-tap-highlight-color: transparent;
+      }
+      button:active { transform: scale(0.97); opacity: 0.8; }
+      button:disabled { opacity: 0.35; cursor: not-allowed; }
+
+      .btn-primary {
+        background: #fff;
+        color: #000;
+        padding: 11px 28px;
+        margin-top: 16px;
+      }
+
+      .btn-compile {
+        background: linear-gradient(135deg, #2A7B9B, #57C785);
+        color: #fff;
+        padding: 11px 28px;
+        margin-top: 16px;
+      }
+
+      .btn-signout {
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.12);
+        color: rgba(255,255,255,0.5);
+        padding: 7px 16px;
+        font-size: 12px;
+        float: right;
+      }
+
+      /* ── Targets list ──────────────────────── */
+      #targets-list { max-width: 560px; }
+
+      .target-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 14px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 8px;
+        margin-bottom: 8px;
+      }
+
+      .target-index {
+        font-size: 11px;
+        font-weight: 700;
+        color: rgba(255,255,255,0.2);
+        min-width: 20px;
+        text-align: center;
+      }
+
+      .target-thumb {
+        width: 48px;
+        height: 32px;
+        object-fit: cover;
+        border-radius: 4px;
+        background: rgba(255,255,255,0.06);
+      }
+
+      .target-message {
+        flex: 1;
+        color: rgba(255,255,255,0.7);
+        font-size: 13px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .empty-state {
+        color: rgba(255,255,255,0.2);
+        font-size: 13px;
+        padding: 16px 0;
+      }
+
+      /* ── Progress bar ──────────────────────── */
+      #progress-wrap {
+        display: none;
+        margin-top: 14px;
+      }
+
+      #progress-bar-track {
+        height: 4px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 8px;
+      }
+
+      #progress-bar-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #2A7B9B, #57C785);
+        border-radius: 4px;
+        transition: width 0.3s ease;
+      }
+
+      #progress-label {
+        font-size: 12px;
+        color: rgba(255,255,255,0.35);
+      }
+
+      /* ── Status messages ───────────────────── */
+      .status {
+        font-size: 13px;
+        padding: 10px 14px;
+        border-radius: 8px;
+        margin-top: 12px;
+        display: none;
+      }
+      .status.error   { background: rgba(200,40,40,0.15); border: 1px solid rgba(200,40,40,0.3); color: #ff8080; }
+      .status.success { background: rgba(70,180,100,0.12); border: 1px solid rgba(70,180,100,0.25); color: #7ee8a2; }
+      .status.info    { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); }
+
+      /* ── Form max-width ────────────────────── */
+      #add-form { max-width: 480px; }
+
+      .compile-note {
+        font-size: 12px;
+        color: rgba(255,255,255,0.3);
+        line-height: 1.6;
+        margin-bottom: 4px;
+      }
+    </style>
+  </head>
+  <body>
+
+    <!-- ── Auth ──────────────────────────────────── -->
+    <div id="auth-section">
+      <h1>c<span>AR</span>ita</h1>
+      <p class="tagline">Admin Panel</p>
+
+      <section>
+        <h2>Sign In</h2>
+        <p class="auth-desc">Enter your admin token. It will be saved locally for this browser session.</p>
+        <form id="auth-form">
+          <label>Admin Token</label>
+          <input type="password" id="token-input" placeholder="Paste your token here" autocomplete="off" />
+          <button type="submit" class="btn-primary">Sign In</button>
+        </form>
+        <div id="auth-status" class="status"></div>
+      </section>
+    </div>
+
+    <!-- ── Main admin (hidden until authenticated) ── -->
+    <div id="admin-section" style="display:none">
+
+      <h1>c<span>AR</span>ita</h1>
+      <p class="tagline">Admin Panel &nbsp;<button class="btn-signout" onclick="signOut()">Sign out</button></p>
+
+      <!-- Current targets -->
+      <section>
+        <h2>Current Targets</h2>
+        <div id="targets-list">
+          <p class="empty-state">Loading…</p>
+        </div>
+      </section>
+
+      <!-- Add target -->
+      <section>
+        <h2>Add New Target</h2>
+        <form id="add-form">
+          <label>Postcard Image (JPG/PNG)</label>
+          <input type="file" id="image-input" accept="image/*" required />
+
+          <label>Overlay Video (MP4)</label>
+          <input type="file" id="video-input" accept="video/*" required />
+
+          <label>Message (shown on scan)</label>
+          <input type="text" id="message-input" placeholder="Location, Date" />
+
+          <button type="submit" class="btn-primary" id="add-btn">Add Target</button>
+        </form>
+        <div id="add-status" class="status"></div>
+      </section>
+
+      <!-- Compile -->
+      <section>
+        <h2>Recompile Targets</h2>
+        <p class="compile-note">
+          Run this after adding any new targets. All targets are compiled together in the browser —
+          this can take 15–60 s depending on image count.
+        </p>
+        <button class="btn-compile" id="compile-btn" onclick="compile()">Compile &amp; Upload</button>
+        <div id="progress-wrap">
+          <div id="progress-bar-track"><div id="progress-bar-fill"></div></div>
+          <p id="progress-label">Preparing…</p>
+        </div>
+        <div id="compile-status" class="status"></div>
+      </section>
+
+    </div>
+
+    <script src="./admin.js"></script>
+  </body>
+</html>

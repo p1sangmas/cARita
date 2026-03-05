@@ -102,8 +102,8 @@ document.addEventListener('DOMContentLoaded', function () {
     target.addEventListener('targetFound', function () {
       navigator.vibrate && navigator.vibrate(60);
       scanUI.classList.add('hidden');
-      downloadBtn.href = './' + filename;
-      downloadBtn.setAttribute('download', filename);
+      downloadBtn.href = filename;
+      downloadBtn.setAttribute('download', filename.split('/').pop());
       downloadBtn.style.animation = 'none';
       downloadBtn.offsetHeight;
       downloadBtn.style.animation = '';

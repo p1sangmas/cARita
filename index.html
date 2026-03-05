@@ -56,57 +56,80 @@
     <!-- Download button: shown only when a target is actively detected -->
     <a id="download-btn" href="#" download> Save Video</a>
 
-    <a-scene
-      mindar-image="imageTargetSrc: ./assets/targets.mind; autoStart: true; uiLoading: no; uiError: yes; uiScanning: no;"
-      vr-mode-ui="enabled: false"
-      device-orientation-permission-ui="enabled: false"
-    >
-      <a-assets>
-        <!--
-          ADD MORE VIDEOS HERE for additional targets.
-          Each video id must match the data-video attribute on its target entity below.
-        -->
-        <video id="video-0" src="./assets/animation.mp4"  preload="auto" playsinline muted loop webkit-playsinline></video>
-        <video id="video-1" src="./assets/animation2.mp4" preload="auto" playsinline muted loop webkit-playsinline></video>
-      </a-assets>
+    <!-- Load target list from KV (synchronous/blocking so scene is built before A-Frame inits) -->
+    <script src="/api/targets-config"></script>
 
-      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+    <script>
+      // buildScene() programmatically creates the <a-scene> from the server-supplied target list.
+      // A-Frame (already loaded in <head>) picks it up via MutationObserver when it is appended.
+      // This keeps autoStart: true working correctly on iOS Safari.
+      function buildScene(targets) {
+        if (!targets || !targets.length) {
+          // No targets — still create a working scene so the camera feed appears.
+          targets = [];
+        }
 
-      <!--
-        ═══ HOW TO ADD MORE TARGETS ════════════════════════════════════════
-        1. Go to https://hiukim.github.io/mind-ar-js-doc/tools/compile
-        2. Upload ALL your images at once — order matters (first = index 0, second = index 1, …)
-        3. Download the new targets.mind and replace the old one in your project
-        4. Add a <video> above for each new video file
-        5. Copy the <a-entity> block below, increment targetIndex, update data-video and data-download
-        ════════════════════════════════════════════════════════════════════
-      -->
+        var scene = document.createElement('a-scene');
+        scene.setAttribute('mindar-image',
+          'imageTargetSrc: /api/mind; autoStart: true; uiLoading: no; uiError: yes; uiScanning: no;');
+        scene.setAttribute('vr-mode-ui', 'enabled: false');
+        scene.setAttribute('device-orientation-permission-ui', 'enabled: false');
 
-      <!-- Target 0 — postcard.png → animation.mp4 -->
-      <a-entity
-        mindar-image-target="targetIndex: 0"
-        data-video="#video-0"
-        data-download="assets/animation.mp4"
-        data-message="Central Market, KL, 1 January 2026"
-      >
-        <!-- width=1, height=0.667 matches postcard 6×4 in landscape ratio -->
-        <a-video src="#video-0" width="1" height="0.667" position="0 0 0" rotation="0 0 0"></a-video>
-        <a-text value="" position="0 -0.42 0.01" align="center" width="1" color="#ffffff" baseline="top" wrap-count="30"></a-text>
-      </a-entity>
+        var assets = document.createElement('a-assets');
 
-      <!-- Target 1 — postcard2.png → animation2.mp4 -->
-      <a-entity
-        mindar-image-target="targetIndex: 1"
-        data-video="#video-1"
-        data-download="assets/animation2.mp4"
-        data-message="Sultan Abdul Samad Building, KL, 1 January 2026"
-      >
-        <a-video src="#video-1" width="1" height="0.667" position="0 0 0" rotation="0 0 0"></a-video>
-        <a-text value="" position="0 -0.42 0.01" align="center" width="1" color="#ffffff" baseline="top" wrap-count="30"></a-text>
-      </a-entity>
-      
+        targets.forEach(function (t) {
+          // Video asset
+          var vid = document.createElement('video');
+          vid.id = 'video-' + t.index;
+          vid.src = '/r2/' + t.videoKey;           // e.g. /r2/targets/0/video.mp4
+          vid.setAttribute('preload', 'auto');
+          vid.setAttribute('playsinline', '');
+          vid.setAttribute('muted', '');
+          vid.setAttribute('loop', '');
+          vid.setAttribute('webkit-playsinline', '');
+          assets.appendChild(vid);
 
-    </a-scene>
+          // Target entity
+          var entity = document.createElement('a-entity');
+          entity.setAttribute('mindar-image-target', 'targetIndex: ' + t.index);
+          entity.dataset.video    = '#video-' + t.index;
+          entity.dataset.download = '/r2/' + t.videoKey;
+          entity.dataset.message  = t.message || '';
+
+          // Video plane — 6×4 in landscape ratio
+          var aVideo = document.createElement('a-video');
+          aVideo.setAttribute('src',      '#video-' + t.index);
+          aVideo.setAttribute('width',    '1');
+          aVideo.setAttribute('height',   '0.667');
+          aVideo.setAttribute('position', '0 0 0');
+          aVideo.setAttribute('rotation', '0 0 0');
+          entity.appendChild(aVideo);
+
+          // Greeting text overlaid below the video
+          var aText = document.createElement('a-text');
+          aText.setAttribute('value',      t.message || '');
+          aText.setAttribute('position',   '0 -0.42 0.01');
+          aText.setAttribute('align',      'center');
+          aText.setAttribute('width',      '1');
+          aText.setAttribute('color',      '#ffffff');
+          aText.setAttribute('baseline',   'top');
+          aText.setAttribute('wrap-count', '30');
+          entity.appendChild(aText);
+
+          scene.appendChild(entity);
+        });
+
+        var camera = document.createElement('a-camera');
+        camera.setAttribute('position', '0 0 0');
+        camera.setAttribute('look-controls', 'enabled: false');
+        scene.appendChild(camera);
+
+        scene.appendChild(assets);
+        document.body.appendChild(scene);
+      }
+
+      buildScene(window.CARITA_TARGETS || []);
+    </script>
 
     <script src="./app.js"></script>
   </body>

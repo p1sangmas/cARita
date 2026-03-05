@@ -2,3 +2,10 @@ implementation_plan.md
 log.txt
 *.log
 *.tmp
+node_modules/
+
+# Wrangler local dev state (KV/R2 simulation, auth tokens)
+.wrangler/
+
+# Compiled MindAR target file — lives in R2, not source code
+assets/*.mind
