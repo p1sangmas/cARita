@@ -4,10 +4,10 @@ compatibility_date = "2024-01-01"
 
 [[r2_buckets]]
 binding = "R2"
-bucket_name = "YOUR_BUCKET_NAME"
+bucket_name = "carita-assets"
 
-# After running: wrangler kv:namespace create YOUR_KV_NAME
+# After running: wrangler kv:namespace create carita-kv
 # replace the id below with the output namespace ID
 [[kv_namespaces]]
 binding = "KV"
-id = "YOUR_NAMESPACE_ID"
+id = "06e51ffcec6241cdb3519f76d712a179"
