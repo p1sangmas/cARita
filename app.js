@@ -78,7 +78,6 @@ function goHome() {
   scanUI.classList.remove('hidden');
   scanUI.style.display = 'none';
   document.getElementById('download-btn').style.display = 'none';
-  document.getElementById('greeting').style.display = 'none';
   // Restore splash
   var splash = document.getElementById('splash');
   splash.classList.remove('fade-out');
@@ -89,7 +88,6 @@ function goHome() {
 document.addEventListener('DOMContentLoaded', function () {
   var scanUI      = document.getElementById('scan-ui');
   var downloadBtn = document.getElementById('download-btn');
-  var greeting    = document.getElementById('greeting');
 
   // Wire up every target entity generically via its data attributes
   document.querySelectorAll('[mindar-image-target]').forEach(function (target) {
@@ -97,18 +95,13 @@ document.addEventListener('DOMContentLoaded', function () {
     var filename = target.dataset.download;
     var message  = target.dataset.message || '';
 
+    // Set greeting text on the in-scene <a-text> so it tracks with the postcard
+    var textEl = target.querySelector('a-text');
+    if (textEl && message) textEl.setAttribute('value', message);
+
     target.addEventListener('targetFound', function () {
       navigator.vibrate && navigator.vibrate(60);
       scanUI.classList.add('hidden');
-      // Greeting
-      if (message) {
-        greeting.textContent = message;
-        greeting.style.animation = 'none';
-        greeting.offsetHeight;   // force reflow
-        greeting.style.animation = '';
-        greeting.style.display = 'block';
-      }
-      // Download button
       downloadBtn.href = './' + filename;
       downloadBtn.setAttribute('download', filename);
       downloadBtn.style.animation = 'none';
@@ -120,7 +113,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     target.addEventListener('targetLost', function () {
       scanUI.classList.remove('hidden');
-      greeting.style.display = 'none';
       downloadBtn.style.display = 'none';
       video.pause();
     });

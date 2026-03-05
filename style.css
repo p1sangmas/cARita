@@ -270,28 +270,6 @@ body {
   background: rgba(255, 255, 255, 0.85);
 }
 
-/* ── Greeting overlay ────────────────────────────────────────── */
-#greeting {
-  position: fixed;
-  top: calc(72px + env(safe-area-inset-top));
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 600;
-  display: none;
-  padding: 10px 24px;
-  background: rgba(0, 0, 0, 0.45);
-  color: #fff;
-  font-size: 16px;
-  font-weight: 500;
-  font-family: inherit;
-  text-align: center;
-  white-space: nowrap;
-  border-radius: 50px;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  animation: fade-down 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
 /* ── Torch button ────────────────────────────────────────────── */
 #torch-btn {
   position: fixed; top: calc(16px + env(safe-area-inset-top)); right: 20px;

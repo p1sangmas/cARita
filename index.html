@@ -53,9 +53,6 @@
       <span class="scan-label">Point at postcard</span>
     </div>
 
-    <!-- Greeting: shown only when a target is actively detected -->
-    <div id="greeting"></div>
-
     <!-- Download button: shown only when a target is actively detected -->
     <a id="download-btn" href="#" download> Save Video</a>
 
@@ -94,6 +91,7 @@
       >
         <!-- width=1, height=0.667 matches postcard 6×4 in landscape ratio -->
         <a-video src="#video-0" width="1" height="0.667" position="0 0 0" rotation="0 0 0"></a-video>
+        <a-text value="" position="0 -0.42 0.01" align="center" width="1" color="#ffffff" baseline="top" wrap-count="30"></a-text>
       </a-entity>
 
       <!-- Target 1 — postcard2.png → animation2.mp4 -->
@@ -104,6 +102,7 @@
         data-message="Sultan Abdul Samad Building, KL, 1 January 2026"
       >
         <a-video src="#video-1" width="1" height="0.667" position="0 0 0" rotation="0 0 0"></a-video>
+        <a-text value="" position="0 -0.42 0.01" align="center" width="1" color="#ffffff" baseline="top" wrap-count="30"></a-text>
       </a-entity>
       
 
