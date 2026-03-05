@@ -96,7 +96,7 @@
           entity.dataset.download = '/r2/' + t.videoKey;
           entity.dataset.message  = t.message || '';
 
-          // Video plane — 6×4 in landscape ratio
+          // Video plane — default to landscape ratio; corrected once metadata loads
           var aVideo = document.createElement('a-video');
           aVideo.setAttribute('src',      '#video-' + t.index);
           aVideo.setAttribute('width',    '1');
@@ -115,6 +115,16 @@
           aText.setAttribute('baseline',   'top');
           aText.setAttribute('wrap-count', '30');
           entity.appendChild(aText);
+
+          // Correct aspect ratio once the browser knows the video dimensions
+          vid.addEventListener('loadedmetadata', (function (av, at) {
+            return function () {
+              if (!this.videoWidth || !this.videoHeight) return;
+              var h = this.videoHeight / this.videoWidth;
+              av.setAttribute('height', String(h));
+              at.setAttribute('position', '0 ' + (-(h / 2 + 0.087)).toFixed(3) + ' 0.01');
+            };
+          })(aVideo, aText));
 
           scene.appendChild(entity);
         });
