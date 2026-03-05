@@ -183,10 +183,11 @@ async function compile() {
       setProgress(Math.round(((i + 1) / currentTargets.length) * 20), 'Loaded ' + (i + 1) + ' of ' + currentTargets.length + ' images…');
     }
 
-    // Step 2: access MindAR compiler (loaded via script tag in admin.html)
+    // Step 2: dynamically import MindAR (ES module — relative chunks resolved by jsDelivr)
     setProgress(20, 'Loading compiler…');
-    var Compiler = window.MINDAR && window.MINDAR.IMAGE && window.MINDAR.IMAGE.Compiler;
-    if (!Compiler) throw new Error('MindAR not loaded — refresh the page and try again.');
+    var mindar = await import('https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image.prod.js');
+    var Compiler = mindar.Compiler;
+    if (!Compiler) throw new Error('Could not load MindAR Compiler.');
 
     var compiler = new Compiler();
 
