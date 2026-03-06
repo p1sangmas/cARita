@@ -20,6 +20,8 @@
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <!-- MindAR A-Frame integration -->
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
+    <!-- QR code generator for story card -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
   </head>
   <body>
 
@@ -56,7 +58,10 @@
     </div>
 
     <!-- Download button: shown only when a target is actively detected -->
-    <a id="download-btn" href="#" download> Save Video</a>
+    <a id="download-btn" href="#" download>Save Video</a>
+
+    <!-- Share Story button: shown alongside download when target is detected -->
+    <button id="share-btn" onclick="shareStory()">Share Story</button>
 
     <!-- Load target list from KV (synchronous/blocking so scene is built before A-Frame inits) -->
     <script src="/api/targets-config"></script>

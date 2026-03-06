@@ -294,6 +294,38 @@ body {
   animation: btn-spring 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+/* ── Share Story button ──────────────────────────────────────── */
+@keyframes btn-spring-up {
+  0%   { opacity: 0; transform: translateX(-50%) translateY(24px) scale(0.8);  }
+  55%  {             transform: translateX(-50%) translateY(-6px)  scale(1.04); }
+  75%  {             transform: translateX(-50%) translateY(3px)   scale(0.98); }
+  100% { opacity: 1; transform: translateX(-50%) translateY(0)     scale(1);    }
+}
+
+#share-btn {
+  position: fixed;
+  bottom: calc(84px + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 600;
+  display: none;
+  padding: 12px 28px;
+  background: linear-gradient(135deg, #2A7B9B, #57C785);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  border-radius: 50px;
+  border: none;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.15s ease;
+  animation: btn-spring-up 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+#share-btn:active  { opacity: 0.8; }
+#share-btn:disabled { opacity: 0.5; cursor: default; }
+
 #download-btn:active {
   background: rgba(255, 255, 255, 0.85);
 }
