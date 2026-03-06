@@ -412,28 +412,32 @@ async function generateStoryVideo(target, storyBtn, progressEl) {
   }
 
   try {
-    setProgress(2, 'Loading FFmpeg core…');
+    var FF_BASE   = 'https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/esm';
+    var CORE_BASE = 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/esm';
+
+    setProgress(2, 'Downloading FFmpeg worker (1/3)…');
+    var classWorkerURL = await toBlobURL(FF_BASE + '/worker.js', 'text/javascript');
+
+    setProgress(6, 'Downloading FFmpeg core JS (2/3)…');
+    var coreURL = await toBlobURL(CORE_BASE + '/ffmpeg-core.js', 'text/javascript');
+
+    setProgress(10, 'Downloading FFmpeg WASM (~12 MB, please wait…)');
+    var wasmURL = await toBlobURL(CORE_BASE + '/ffmpeg-core.wasm', 'application/wasm');
+
+    setProgress(18, 'Initializing FFmpeg…');
     var ffmpeg = new FFmpeg();
     ffmpeg.on('progress', function (e) {
-      var pct = 20 + Math.round(e.progress * 70);
+      var pct = 22 + Math.round(e.progress * 68);
       storyBtn.textContent = 'Encoding ' + Math.round(e.progress * 100) + '%…';
       setProgress(pct, 'Encoding… ' + Math.round(e.progress * 100) + '%');
     });
+    await ffmpeg.load({ classWorkerURL: classWorkerURL, coreURL: coreURL, wasmURL: wasmURL });
 
-    var FF_BASE = 'https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/esm';
-    var MT_BASE = 'https://cdn.jsdelivr.net/npm/@ffmpeg/core-mt@0.12.6/dist/esm';
-    await ffmpeg.load({
-      classWorkerURL: await toBlobURL(FF_BASE + '/worker.js',          'text/javascript'),
-      coreURL:        await toBlobURL(MT_BASE + '/ffmpeg-core.js',     'text/javascript'),
-      wasmURL:        await toBlobURL(MT_BASE + '/ffmpeg-core.wasm',   'application/wasm'),
-      workerURL:      await toBlobURL(MT_BASE + '/ffmpeg-core.worker.js', 'text/javascript'),
-    });
-
-    setProgress(8, 'Fetching video…');
+    setProgress(20, 'Fetching video…');
     storyBtn.textContent = 'Fetching…';
     await ffmpeg.writeFile('input.mp4', await fetchFile('/r2/targets/' + target.index + '/video.mp4'));
 
-    setProgress(15, 'Generating overlay…');
+    setProgress(21, 'Generating overlay…');
     storyBtn.textContent = 'Compositing…';
     var overlayCanvas = generateOverlayPNG(target.message);
     var overlayBlob = await new Promise(function (res, rej) {
@@ -441,7 +445,7 @@ async function generateStoryVideo(target, storyBtn, progressEl) {
     });
     await ffmpeg.writeFile('overlay.png', await fetchFile(overlayBlob));
 
-    setProgress(20, 'Running FFmpeg…');
+    setProgress(22, 'Running FFmpeg…');
     await ffmpeg.exec([
       '-i', 'input.mp4',
       '-i', 'overlay.png',
