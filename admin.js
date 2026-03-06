@@ -417,9 +417,10 @@ async function generateStoryVideo(target, storyBtn, progressEl) {
     setProgress(18, 'Initializing FFmpeg…');
     var ffmpeg = new FFmpeg();
     ffmpeg.on('progress', function (e) {
-      var pct = 22 + Math.round(e.progress * 68);
-      storyBtn.textContent = 'Encoding ' + Math.round(e.progress * 100) + '%…';
-      setProgress(pct, 'Encoding… ' + Math.round(e.progress * 100) + '%');
+      var p   = Math.min(e.progress, 1);
+      var pct = 22 + Math.round(p * 68);
+      storyBtn.textContent = 'Encoding ' + Math.round(p * 100) + '%…';
+      setProgress(pct, 'Encoding… ' + Math.round(p * 100) + '%');
     });
     await ffmpeg.load({
       classWorkerURL: location.origin + '/ffmpeg/worker.js',
@@ -444,7 +445,7 @@ async function generateStoryVideo(target, storyBtn, progressEl) {
     // in some FFmpeg.wasm builds.
     var exitCode = await ffmpeg.exec([
       '-i', 'input.mp4',
-      '-loop', '1', '-i', 'overlay.png',
+      '-i', 'overlay.png',
       '-filter_complex',
       '[0:v]scale=936:950:force_original_aspect_ratio=decrease,' +
       'pad=936:950:(ow-iw)/2:(oh-ih)/2:black,' +
@@ -459,7 +460,6 @@ async function generateStoryVideo(target, storyBtn, progressEl) {
       '-c:a', 'aac',
       '-b:a', '128k',
       '-movflags', '+faststart',
-      '-shortest',
       'output.mp4',
     ]);
     if (exitCode !== 0) throw new Error('FFmpeg encoding failed (exit code ' + exitCode + ')');
