@@ -278,10 +278,51 @@ document.getElementById('add-form').addEventListener('submit', async function (e
   }
 });
 
+// ── Canvas helpers (mirrored from app.js) ────────────────────────────────────
+function fillRoundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.arcTo(x + w, y,     x + w, y + r,     r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+  ctx.lineTo(x + r, y + h);
+  ctx.arcTo(x,      y + h, x,      y + h - r, r);
+  ctx.lineTo(x, y + r);
+  ctx.arcTo(x,      y,     x + r,  y,          r);
+  ctx.closePath();
+}
+
+function drawQROnCanvas(ctx, centerX, topY, url) {
+  var qr = qrcode(0, 'M');
+  qr.addData(url);
+  qr.make();
+  var count  = qr.getModuleCount();
+  var QUIET  = 4;
+  var cellPx = 8;
+  var totalPx = (count + QUIET * 2) * cellPx;
+  var x = centerX - totalPx / 2;
+  var bgPad = 14;
+
+  ctx.fillStyle = '#fff';
+  fillRoundRect(ctx, x - bgPad, topY - bgPad, totalPx + bgPad * 2, totalPx + bgPad * 2, 16);
+  ctx.fill();
+
+  ctx.fillStyle = '#000';
+  for (var r = 0; r < count; r++) {
+    for (var c = 0; c < count; c++) {
+      if (qr.isDark(r, c)) {
+        ctx.fillRect(x + (c + QUIET) * cellPx, topY + (r + QUIET) * cellPx, cellPx, cellPx);
+      }
+    }
+  }
+  return totalPx + bgPad * 2;
+}
+
 // ── Generate overlay PNG (story card layout without video, transparent video zone) ──
-function generateOverlayPNG(message) {
+function generateOverlayPNG(message, fontFamily) {
   var W = 1080, H = 1920, PAD = 72;
-  var FONT = 'system-ui, -apple-system, Helvetica Neue, Arial, sans-serif';
+  var FONT = (fontFamily || 'system-ui') + ', system-ui, -apple-system, Helvetica Neue, Arial, sans-serif';
 
   var canvas = document.createElement('canvas');
   canvas.width  = W;
@@ -377,10 +418,17 @@ function generateOverlayPNG(message) {
   ctx.fillStyle = 'rgba(255,255,255,0.3)';
   ctx.fillText('Scan a postcard', W / 2, divY + 46);
 
-  // URL
+  // QR code
+  var QR_TOP    = divY + 68;
+  var qrPainted = 0;
+  if (typeof qrcode !== 'undefined') {
+    qrPainted = drawQROnCanvas(ctx, W / 2, QR_TOP, 'https://carita.pages.dev');
+  }
+
+  // URL beneath QR
   ctx.font      = '400 28px ' + FONT;
   ctx.fillStyle = 'rgba(255,255,255,0.2)';
-  ctx.fillText('carita.pages.dev', W / 2, divY + 100);
+  ctx.fillText('carita.pages.dev', W / 2, QR_TOP + qrPainted + 32);
 
   // Footer
   ctx.font      = '400 26px ' + FONT;
@@ -432,9 +480,21 @@ async function generateStoryVideo(target, storyBtn, progressEl) {
     storyBtn.textContent = 'Fetching…';
     await ffmpeg.writeFile('input.mp4', await fetchFile('/r2/targets/' + target.index + '/video.mp4'));
 
+    setProgress(21, 'Loading fonts…');
+    var fontFamily = 'system-ui';
+    try {
+      var jsrBase = 'https://cdn.jsdelivr.net/npm/@fontsource/inter@5/files';
+      var f400 = new FontFace('Inter', 'url(' + jsrBase + '/inter-latin-400-normal.woff2)', { weight: '400' });
+      var f700 = new FontFace('Inter', 'url(' + jsrBase + '/inter-latin-700-normal.woff2)', { weight: '700' });
+      await Promise.all([f400.load(), f700.load()]);
+      document.fonts.add(f400);
+      document.fonts.add(f700);
+      fontFamily = 'Inter';
+    } catch (_) { /* fall back to system-ui if font load fails */ }
+
     setProgress(21, 'Generating overlay…');
     storyBtn.textContent = 'Compositing…';
-    var overlayCanvas = generateOverlayPNG(target.message);
+    var overlayCanvas = generateOverlayPNG(target.message, fontFamily);
     var overlayBlob = await new Promise(function (res, rej) {
       overlayCanvas.toBlob(function (b) { b ? res(b) : rej(new Error('Canvas export failed')); }, 'image/png');
     });
