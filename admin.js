@@ -493,11 +493,11 @@ async function generateStoryVideo(target, storyBtn, progressEl) {
 
 function markStoryDone(btn) {
   btn.textContent = '✓ Story';
-  btn.disabled = true;
-  btn.style.color = 'rgba(80,200,120,0.7)';
-  btn.style.borderColor = 'rgba(80,200,120,0.25)';
-  btn.style.cursor = 'default';
-  btn.title = 'Story video already generated';
+  btn.disabled = false;
+  btn.style.color = 'rgba(80,200,120,0.8)';
+  btn.style.borderColor = 'rgba(80,200,120,0.3)';
+  btn.style.cursor = 'pointer';
+  btn.title = 'Story video ready — click to regenerate';
 }
 
 // ── Compile & upload targets.mind ────────────────────────────────────────────

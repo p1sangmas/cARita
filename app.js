@@ -284,6 +284,7 @@ function generateStoryCard(videoEl, message) {
 
 async function shareStoryPNG() {
   var btn = document.getElementById('share-btn');
+  if (!currentVideo) return;  // target lost before we got here — nothing to generate
   btn.textContent = 'Generating…';
 
   try {
@@ -338,7 +339,11 @@ function shareStory() {
       if (res.ok) return shareVideoFromUrl(storyUrl);
       return shareStoryPNG();
     })
-    .catch(function () { return shareStoryPNG(); })
+    .catch(function (err) {
+      // AbortError = user dismissed the share sheet — don't fall back to PNG
+      if (err && err.name === 'AbortError') return;
+      return shareStoryPNG();
+    })
     .finally(function () {
       btn.disabled = false;
       if (btn.textContent === 'Loading…') btn.textContent = 'Share Story';
@@ -348,6 +353,8 @@ function shareStory() {
 async function shareVideoFromUrl(url) {
   var res  = await fetch(url);
   var blob = await res.blob();
+  // Guard against corrupt/empty files from a failed admin encode
+  if (blob.size < 1024) throw new Error('story-corrupt');
   var file = new File([blob], 'carita-story.mp4', { type: 'video/mp4' });
   if (navigator.canShare && navigator.canShare({ files: [file] })) {
     await navigator.share({ files: [file], title: 'cARita' });
