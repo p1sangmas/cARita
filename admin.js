@@ -440,15 +440,16 @@ async function generateStoryVideo(target, storyBtn, progressEl) {
     await ffmpeg.writeFile('overlay.png', await fetchFile(overlayBlob));
 
     setProgress(22, 'Running FFmpeg…');
-    await ffmpeg.exec([
+    // Use pad filter only — avoids the `color` source filter which may be absent
+    // in some FFmpeg.wasm builds.
+    var exitCode = await ffmpeg.exec([
       '-i', 'input.mp4',
-      '-i', 'overlay.png',
+      '-loop', '1', '-i', 'overlay.png',
       '-filter_complex',
       '[0:v]scale=936:950:force_original_aspect_ratio=decrease,' +
-      'pad=936:950:(ow-iw)/2:(oh-ih)/2:black[vid];' +
-      'color=black:s=1080x1920:r=30[bg];' +
-      '[bg][vid]overlay=72:270[bgvid];' +
-      '[bgvid][1:v]overlay=0:0[out]',
+      'pad=936:950:(ow-iw)/2:(oh-ih)/2:black,' +
+      'pad=1080:1920:72:270:black[bgvid];' +
+      '[bgvid][1:v]overlay=0:0:format=auto[out]',
       '-map', '[out]',
       '-map', '0:a?',
       '-c:v', 'libx264',
@@ -458,13 +459,17 @@ async function generateStoryVideo(target, storyBtn, progressEl) {
       '-c:a', 'aac',
       '-b:a', '128k',
       '-movflags', '+faststart',
+      '-shortest',
       'output.mp4',
     ]);
+    if (exitCode !== 0) throw new Error('FFmpeg encoding failed (exit code ' + exitCode + ')');
 
     setProgress(92, 'Uploading…');
     storyBtn.textContent = 'Uploading…';
     var data = await ffmpeg.readFile('output.mp4');
-    var blob = new Blob([data.buffer], { type: 'video/mp4' });
+    // Use data directly (not data.buffer) to avoid sending buffer padding bytes
+    var blob = new Blob([data], { type: 'video/mp4' });
+    setProgress(93, 'Uploading… (' + (blob.size / 1024 / 1024).toFixed(1) + ' MB)');
 
     var res = await fetch('/api/upload-story-video?index=' + target.index, {
       method: 'PUT',

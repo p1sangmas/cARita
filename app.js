@@ -383,10 +383,12 @@ document.addEventListener('DOMContentLoaded', function () {
       downloadBtn.style.animation = '';
       downloadBtn.style.display   = 'block';
 
-      // Share Story button
+      // Share Story button — always reset state in case a previous share was in-flight
       currentVideo   = video;
       currentMessage = message;
       currentBlob    = null;
+      shareBtn.disabled    = false;
+      shareBtn.textContent = 'Share Story';
       shareBtn.style.animation = 'none';
       shareBtn.offsetHeight;
       shareBtn.style.animation = '';
