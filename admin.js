@@ -131,15 +131,9 @@ function renderTargets(targets) {
     storyBtn.addEventListener('click', function () { generateStoryVideo(t, storyBtn, progressEl); });
     delBtn.addEventListener('click',  function () { deleteTarget(t.index); });
 
-    // Show ✓ if story.mp4 already exists in R2
+    // Disable button if story.mp4 already exists in R2
     fetch('/r2/targets/' + t.index + '/story.mp4', { method: 'HEAD' })
-      .then(function (r) {
-        if (r.ok) {
-          storyBtn.textContent = '✓ Story';
-          storyBtn.style.color = 'rgba(80,200,120,0.8)';
-          storyBtn.style.borderColor = 'rgba(80,200,120,0.3)';
-        }
-      })
+      .then(function (r) { if (r.ok) markStoryDone(storyBtn); })
       .catch(function () {});
   });
 }
@@ -412,16 +406,12 @@ async function generateStoryVideo(target, storyBtn, progressEl) {
   }
 
   try {
-    var FF_BASE   = 'https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/esm';
     var CORE_BASE = 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/esm';
 
-    setProgress(2, 'Downloading FFmpeg worker (1/3)…');
-    var classWorkerURL = await toBlobURL(FF_BASE + '/worker.js', 'text/javascript');
-
-    setProgress(6, 'Downloading FFmpeg core JS (2/3)…');
+    setProgress(2, 'Downloading FFmpeg core JS (1/2)…');
     var coreURL = await toBlobURL(CORE_BASE + '/ffmpeg-core.js', 'text/javascript');
 
-    setProgress(10, 'Downloading FFmpeg WASM (~12 MB, please wait…)');
+    setProgress(8, 'Downloading FFmpeg WASM (~12 MB, please wait…)');
     var wasmURL = await toBlobURL(CORE_BASE + '/ffmpeg-core.wasm', 'application/wasm');
 
     setProgress(18, 'Initializing FFmpeg…');
@@ -431,7 +421,11 @@ async function generateStoryVideo(target, storyBtn, progressEl) {
       storyBtn.textContent = 'Encoding ' + Math.round(e.progress * 100) + '%…';
       setProgress(pct, 'Encoding… ' + Math.round(e.progress * 100) + '%');
     });
-    await ffmpeg.load({ classWorkerURL: classWorkerURL, coreURL: coreURL, wasmURL: wasmURL });
+    await ffmpeg.load({
+      classWorkerURL: location.origin + '/ffmpeg/worker.js',
+      coreURL: coreURL,
+      wasmURL: wasmURL,
+    });
 
     setProgress(20, 'Fetching video…');
     storyBtn.textContent = 'Fetching…';
@@ -482,10 +476,7 @@ async function generateStoryVideo(target, storyBtn, progressEl) {
     if (!res.ok) throw new Error('Upload failed: HTTP ' + res.status);
 
     setProgress(100, 'Done!');
-    storyBtn.textContent = '✓ Story';
-    storyBtn.style.color = 'rgba(80,200,120,0.8)';
-    storyBtn.style.borderColor = 'rgba(80,200,120,0.3)';
-    storyBtn.disabled = false;
+    markStoryDone(storyBtn);
 
   } catch (err) {
     setProgress(0, 'Error: ' + err.message);
@@ -493,6 +484,15 @@ async function generateStoryVideo(target, storyBtn, progressEl) {
     storyBtn.textContent = '🎬 Story';
     storyBtn.disabled = false;
   }
+}
+
+function markStoryDone(btn) {
+  btn.textContent = '✓ Story';
+  btn.disabled = true;
+  btn.style.color = 'rgba(80,200,120,0.7)';
+  btn.style.borderColor = 'rgba(80,200,120,0.25)';
+  btn.style.cursor = 'default';
+  btn.title = 'Story video already generated';
 }
 
 // ── Compile & upload targets.mind ────────────────────────────────────────────
