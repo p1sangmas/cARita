@@ -420,11 +420,13 @@ async function generateStoryVideo(target, storyBtn, progressEl) {
       setProgress(pct, 'Encoding… ' + Math.round(e.progress * 100) + '%');
     });
 
+    var FF_BASE = 'https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/esm';
     var MT_BASE = 'https://cdn.jsdelivr.net/npm/@ffmpeg/core-mt@0.12.6/dist/esm';
     await ffmpeg.load({
-      coreURL:   await toBlobURL(MT_BASE + '/ffmpeg-core.js',     'text/javascript'),
-      wasmURL:   await toBlobURL(MT_BASE + '/ffmpeg-core.wasm',   'application/wasm'),
-      workerURL: await toBlobURL(MT_BASE + '/ffmpeg-core.worker.js', 'text/javascript'),
+      classWorkerURL: await toBlobURL(FF_BASE + '/worker.js',          'text/javascript'),
+      coreURL:        await toBlobURL(MT_BASE + '/ffmpeg-core.js',     'text/javascript'),
+      wasmURL:        await toBlobURL(MT_BASE + '/ffmpeg-core.wasm',   'application/wasm'),
+      workerURL:      await toBlobURL(MT_BASE + '/ffmpeg-core.worker.js', 'text/javascript'),
     });
 
     setProgress(8, 'Fetching video…');
