@@ -95,7 +95,7 @@ function prepareStoryBlob() {
   try {
     var card = generateStoryCard(currentVideo, currentMessage);
     card.toBlob(function (b) { if (b) currentBlob = b; }, 'image/png');
-  } catch (e) { /* tainted canvas or other error — will retry on share */ }
+  } catch (e) { showError('[prep] ' + e.name + ': ' + e.message); }
 }
 
 function fillRoundRect(ctx, x, y, w, h, r) {
@@ -317,9 +317,9 @@ async function shareStory() {
     }
   } catch (err) {
     if (err.name !== 'AbortError') {
+      showError('[share] ' + err.name + ': ' + err.message);
       btn.textContent = 'Failed — try again';
       setTimeout(function () { btn.textContent = 'Share Story'; }, 2500);
-      console.error('Story share failed:', err);
     }
   } finally {
     btn.disabled = false;
