@@ -280,6 +280,39 @@
         background: #000;
         border: 1px solid rgba(255,255,255,0.08);
       }
+
+      /* ── Story video per-row progress ──────── */
+      .sv-progress {
+        padding: 6px 14px 8px;
+        margin-top: -4px;
+        margin-bottom: 4px;
+        background: rgba(255,255,255,0.02);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-top: none;
+        border-radius: 0 0 8px 8px;
+      }
+
+      .sv-track {
+        height: 3px;
+        background: rgba(255,255,255,0.08);
+        border-radius: 3px;
+        overflow: hidden;
+        margin-bottom: 5px;
+      }
+
+      .sv-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #2A7B9B, #57C785);
+        border-radius: 3px;
+        transition: width 0.3s ease;
+      }
+
+      .sv-label {
+        font-size: 11px;
+        color: rgba(255,255,255,0.3);
+        margin: 0;
+      }
     </style>
   </head>
   <body>
@@ -353,6 +386,6 @@
 
     </div>
 
-    <script src="./admin.js"></script>
+    <script type="module" src="./admin.js"></script>
   </body>
 </html>

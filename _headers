@@ -1,0 +1,8 @@
+/admin.html
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: require-corp
+
+/r2/*
+  Cross-Origin-Resource-Policy: cross-origin
+  Access-Control-Allow-Origin: *
+  Access-Control-Expose-Headers: Content-Type, Content-Length

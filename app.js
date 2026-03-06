@@ -257,10 +257,10 @@ function generateStoryCard(videoEl, message) {
   ctx.lineTo(W - PAD * 2, divY);
   ctx.stroke();
 
-  // "Scan this postcard" label
+  // "Scan a postcard" label
   ctx.font      = '400 30px ' + FONT;
   ctx.fillStyle = 'rgba(255,255,255,0.3)';
-  ctx.fillText('Scan this postcard', W / 2, divY + 46);
+  ctx.fillText('Scan a postcard', W / 2, divY + 46);
 
   // QR code
   var QR_TOP     = divY + 68;
@@ -282,10 +282,8 @@ function generateStoryCard(videoEl, message) {
   return canvas;
 }
 
-async function shareStory() {
+async function shareStoryPNG() {
   var btn = document.getElementById('share-btn');
-  if (btn.disabled) return;
-  btn.disabled    = true;
   btn.textContent = 'Generating…';
 
   try {
@@ -324,6 +322,38 @@ async function shareStory() {
   } finally {
     btn.disabled = false;
     if (btn.textContent === 'Generating…') btn.textContent = 'Share Story';
+  }
+}
+
+function shareStory() {
+  var btn = document.getElementById('share-btn');
+  if (btn.disabled || !currentVideo) return;
+  var targetIndex = (currentVideo.id || '').replace('video-', '');
+  var storyUrl    = '/r2/targets/' + targetIndex + '/story.mp4';
+
+  btn.disabled = true; btn.textContent = 'Loading…';
+
+  fetch(storyUrl, { method: 'HEAD' })
+    .then(function (res) {
+      if (res.ok) return shareVideoFromUrl(storyUrl);
+      return shareStoryPNG();
+    })
+    .catch(function () { return shareStoryPNG(); })
+    .finally(function () {
+      btn.disabled = false;
+      if (btn.textContent === 'Loading…') btn.textContent = 'Share Story';
+    });
+}
+
+async function shareVideoFromUrl(url) {
+  var res  = await fetch(url);
+  var blob = await res.blob();
+  var file = new File([blob], 'carita-story.mp4', { type: 'video/mp4' });
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    await navigator.share({ files: [file], title: 'cARita' });
+  } else {
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = 'carita-story.mp4'; a.click();
   }
 }
 

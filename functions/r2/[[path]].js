@@ -14,6 +14,21 @@ export async function onRequestGet(context) {
   }
   // Short cache — videos/images rarely change; admin recompile updates targets.mind separately
   headers.set('Cache-Control', 'public, max-age=300');
+  headers.set('Cross-Origin-Resource-Policy', 'cross-origin');
+  headers.set('Access-Control-Allow-Origin', '*');
+  headers.set('Access-Control-Expose-Headers', 'Content-Type, Content-Length');
 
   return new Response(object.body, { headers });
+}
+
+export async function onRequestOptions() {
+  return new Response(null, {
+    status: 204,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+      'Access-Control-Allow-Headers': 'Range',
+      'Access-Control-Max-Age': '86400',
+    },
+  });
 }
