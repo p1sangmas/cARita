@@ -77,6 +77,7 @@ function goHome() {
   document.getElementById('share-btn').style.display = 'none';
   currentVideo   = null;
   currentMessage = '';
+  currentBlob    = null;
 
   var splash = document.getElementById('splash');
   splash.classList.remove('fade-out');
@@ -86,6 +87,16 @@ function goHome() {
 // ── Story card ────────────────────────────────────────────────
 var currentVideo   = null;
 var currentMessage = '';
+var currentBlob    = null;  // pre-generated PNG blob for instant sharing
+
+function prepareStoryBlob() {
+  currentBlob = null;
+  if (!currentVideo) return;
+  try {
+    var card = generateStoryCard(currentVideo, currentMessage);
+    card.toBlob(function (b) { if (b) currentBlob = b; }, 'image/png');
+  } catch (e) { /* tainted canvas or other error — will retry on share */ }
+}
 
 function fillRoundRect(ctx, x, y, w, h, r) {
   ctx.beginPath();
@@ -278,31 +289,41 @@ async function shareStory() {
   btn.textContent = 'Generating…';
 
   try {
-    var card = generateStoryCard(currentVideo, currentMessage);
-    var blob = await new Promise(function (res, rej) {
-      card.toBlob(function (b) {
-        b ? res(b) : rej(new Error('Canvas export failed'));
-      }, 'image/png');
-    });
+    // Use pre-generated blob if available (avoids Safari user-gesture timeout).
+    // If not ready yet, generate now (desktop / slow devices).
+    var blob = currentBlob;
+    if (!blob) {
+      var card = generateStoryCard(currentVideo, currentMessage);
+      blob = await new Promise(function (res, rej) {
+        card.toBlob(function (b) {
+          b ? res(b) : rej(new Error('Canvas export failed'));
+        }, 'image/png');
+      });
+    }
 
     var file = new File([blob], 'carita-story.png', { type: 'image/png' });
 
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({ files: [file] });
+      await navigator.share({ files: [file], title: 'cARita' });
     } else {
-      // Fallback: download the PNG directly
+      // Fallback: open image in new tab (iOS-safe; user can long-press to save)
       var url = URL.createObjectURL(blob);
-      var a   = document.createElement('a');
-      a.href     = url;
-      a.download = 'carita-story.png';
-      a.click();
-      setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+      if (!window.open(url, '_blank')) {
+        // If popup blocked, anchor download
+        var a = document.createElement('a');
+        a.href = url; a.download = 'carita-story.png'; a.click();
+      }
+      setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
     }
   } catch (err) {
-    if (err.name !== 'AbortError') console.error('Story share failed:', err);
+    if (err.name !== 'AbortError') {
+      btn.textContent = 'Failed — try again';
+      setTimeout(function () { btn.textContent = 'Share Story'; }, 2500);
+      console.error('Story share failed:', err);
+    }
   } finally {
-    btn.disabled    = false;
-    btn.textContent = 'Share Story';
+    btn.disabled = false;
+    if (btn.textContent === 'Generating…') btn.textContent = 'Share Story';
   }
 }
 
@@ -335,12 +356,15 @@ document.addEventListener('DOMContentLoaded', function () {
       // Share Story button
       currentVideo   = video;
       currentMessage = message;
+      currentBlob    = null;
       shareBtn.style.animation = 'none';
       shareBtn.offsetHeight;
       shareBtn.style.animation = '';
       shareBtn.style.display   = 'block';
 
       video.play();
+      // Pre-generate story card blob so share is instant when user taps
+      setTimeout(prepareStoryBlob, 600);
     });
 
     target.addEventListener('targetLost', function () {
@@ -349,6 +373,7 @@ document.addEventListener('DOMContentLoaded', function () {
       shareBtn.style.display    = 'none';
       currentVideo   = null;
       currentMessage = '';
+      currentBlob    = null;
       video.pause();
     });
   });
