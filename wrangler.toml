@@ -10,4 +10,4 @@ bucket_name = "carita-assets"
 # replace the id below with the output namespace ID
 [[kv_namespaces]]
 binding = "KV"
-id = "06e51ffcec6241cdb3519f76d712a179"
+id = ""
