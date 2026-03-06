@@ -116,7 +116,7 @@ function drawQROnCanvas(ctx, centerX, topY, url) {
   var qr = qrcode(0, 'M');
   qr.addData(url);
   qr.make();
-  var count  = qr.moduleCount();
+  var count  = qr.moduleCount;
   var QUIET  = 4;
   var cellPx = 8;
   var totalPx = (count + QUIET * 2) * cellPx;
