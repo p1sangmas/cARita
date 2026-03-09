@@ -4,11 +4,28 @@
 
 cARita turns printed postcards into living AR experiences. Scan a postcard with your phone camera — no app install needed — and watch a personal video message play directly over the card.
 
-Live demo: [carita.pages.dev](https://carita.pages.dev)
+🔗 Live demo: [carita.pages.dev](https://carita.pages.dev)
+
+![image](./showcase/carita.png)
 
 ---
 
-## How it works
+## 📖 Table of Contents
+
+- [How it works](#-how-it-works)
+- [Features](#-features)
+- [Tech stack](#-tech-stack)
+- [Project structure](#-project-structure)
+- [Self-hosting guide](#-self-hosting-guide)
+- [Admin panel](#-admin-panel)
+- [How story sharing works](#-how-story-sharing-works)
+- [Local development](#-local-development)
+- [Contributing](#-contributing)
+- [License](#-license)
+
+---
+
+## ✨ How it works
 
 1. A postcard is printed and physically sent or given to someone.
 2. The recipient opens `carita.pages.dev` on their phone browser, taps **Tap to Start**, and points the camera at the postcard.
@@ -19,32 +36,32 @@ Everything runs in the browser — iOS Safari and Android Chrome both work with 
 
 ---
 
-## Features
+## 🚀 Features
 
-- **AR video overlay** — MindAR.js image tracking plays a video precisely over the postcard.
-- **Multi-target** — supports multiple different postcards, each with its own video and message.
-- **Share Story** — admin pre-composes a 1080×1920 story video (FFmpeg.wasm + Canvas overlay) and stores it in R2. End users fetch and share instantly, even on iOS Safari.
-- **Self-service admin panel** — upload new postcard images and videos, recompile AR targets, and generate story videos, all from the browser. No developer needed after initial setup.
-- **Zero app install** — pure PWA-style web app hosted on Cloudflare Pages.
-- **Free infrastructure** — Cloudflare Pages + R2 + KV, all on the free tier.
+- 📸 **AR video overlay** — MindAR.js image tracking plays a video precisely over the postcard.
+- 🗂️ **Multi-target** — supports multiple different postcards, each with its own video and message.
+- 🎬 **Share Story** — admin pre-composes a 1080×1920 story video (FFmpeg.wasm + Canvas overlay) and stores it in R2. End users fetch and share instantly, even on iOS Safari.
+- 🛠️ **Self-service admin panel** — upload new postcard images and videos, recompile AR targets, and generate story videos, all from the browser. No developer needed after initial setup.
+- 📱 **Zero app install** — pure PWA-style web app hosted on Cloudflare Pages.
+- 🆓 **Free infrastructure** — Cloudflare Pages + R2 + KV, all on the free tier.
 
 ---
 
-## Tech stack
+## 🛠️ Tech stack
 
 | Layer | Technology |
 |-------|-----------|
-| AR tracking | [MindAR.js 1.2.2](https://hiukim.github.io/mind-ar-js-doc/) |
-| 3D scene | [A-Frame 1.4.2](https://aframe.io) |
-| Video compositing | [FFmpeg.wasm 0.12](https://ffmpegwasm.netlify.app/) (admin only, desktop Chrome) |
-| Storage | Cloudflare R2 (videos, images, `.mind` file, story MP4s) |
-| Metadata | Cloudflare KV (target list JSON) |
-| API | Cloudflare Pages Functions |
-| Hosting | Cloudflare Pages |
+| 📡 AR tracking | [MindAR.js 1.2.2](https://hiukim.github.io/mind-ar-js-doc/) |
+| 🌐 3D scene | [A-Frame 1.4.2](https://aframe.io) |
+| 🎞️ Video compositing | [FFmpeg.wasm 0.12](https://ffmpegwasm.netlify.app/) (admin only, desktop Chrome) |
+| 🪣 Storage | Cloudflare R2 (videos, images, `.mind` file, story MP4s) |
+| 🗄️ Metadata | Cloudflare KV (target list JSON) |
+| ⚡ API | Cloudflare Pages Functions |
+| ☁️ Hosting | Cloudflare Pages |
 
 ---
 
-## Project structure
+## 📁 Project structure
 
 ```
 cARita/
@@ -75,7 +92,7 @@ cARita/
 
 ---
 
-## Self-hosting guide
+## ☁️ Self-hosting guide
 
 ### Prerequisites
 
@@ -145,21 +162,21 @@ wrangler pages deploy . --project-name your-project-name
 
 ---
 
-## Admin panel
+## 🔐 Admin panel
 
 Access `/admin.html` from a desktop browser (Chrome recommended). Enter your `ADMIN_TOKEN` to sign in.
 
 From the admin panel you can:
-- **View current targets** — list of all uploaded postcards with thumbnails.
-- **Add a new target** — upload a postcard image (JPG/PNG), overlay video (MP4), and a message label.
-- **Recompile targets** — runs the MindAR compiler in the browser to regenerate `targets.mind`. Required after every image upload.
-- **Generate Story Video** — uses FFmpeg.wasm to composite the overlay video with a branded 1080×1920 story card layout and uploads the result to R2. End users can then share it instantly without any on-device processing.
+- 🖼️ **View current targets** — list of all uploaded postcards with thumbnails.
+- ➕ **Add a new target** — upload a postcard image (JPG/PNG), overlay video (MP4), and a message label.
+- ⚙️ **Recompile targets** — runs the MindAR compiler in the browser to regenerate `targets.mind`. Required after every image upload.
+- 🎬 **Generate Story Video** — uses FFmpeg.wasm to composite the overlay video with a branded 1080×1920 story card layout and uploads the result to R2. End users can then share it instantly without any on-device processing.
 
 > **Note:** Story video generation requires `Cross-Origin-Opener-Policy: same-origin` and `Cross-Origin-Embedder-Policy: require-corp` on `/admin.html`, which are set in `_headers`. These headers are intentionally **not** applied to `index.html` (the public AR viewer) to avoid breaking CDN-loaded A-Frame and MindAR scripts.
 
 ---
 
-## How story sharing works
+## 📤 How story sharing works
 
 ```
 Admin (desktop Chrome):
@@ -176,14 +193,14 @@ End user (iOS or Android):
 
 | Platform | Behaviour |
 |----------|-----------|
-| iOS Safari | Fetches pre-composed MP4 → native share sheet |
-| Android Chrome | Fetches pre-composed MP4 → native share sheet |
-| Desktop | Downloads MP4 |
-| No story video yet | Generates PNG story card on-device (fallback) |
+| 🍎 iOS Safari | Fetches pre-composed MP4 → native share sheet |
+| 🤖 Android Chrome | Fetches pre-composed MP4 → native share sheet |
+| 🖥️ Desktop | Downloads MP4 |
+| ⚠️ No story video yet | Generates PNG story card on-device (fallback) |
 
 ---
 
-## Local development
+## 💻 Local development
 
 Wrangler's local dev server emulates R2 and KV bindings:
 
@@ -197,7 +214,7 @@ Open `http://localhost:8788` in your browser.
 
 ---
 
-## Contributing
+## 🤝 Contributing
 
 Pull requests are welcome. For significant changes, please open an issue first to discuss what you'd like to change.
 
@@ -208,7 +225,7 @@ When contributing:
 
 ---
 
-## License
+## 📄 License
 
 MIT — see [LICENSE](LICENSE) for details.
 
