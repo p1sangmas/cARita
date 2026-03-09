@@ -369,14 +369,4 @@ body {
   letter-spacing: 0.5px;
 }
 
-/* ── AR loader ───────────────────────────────────────────────── */
-#ar-loader { display: none; flex-direction: column; align-items: center; gap: 12px; }
-.ar-loader-ring {
-  width: 36px; height: 36px;
-  border: 2.5px solid rgba(255,255,255,0.15);
-  border-top-color: rgba(255,255,255,0.85);
-  border-radius: 50%;
-  animation: loader-spin 0.9s linear infinite;
-}
 @keyframes loader-spin { to { transform: rotate(360deg); } }
-.ar-loader-text { color: rgba(255,255,255,0.45); font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; }

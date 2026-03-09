@@ -84,17 +84,7 @@ function startExperience() {
   setTimeout(function () { splash.style.display = 'none'; }, 500);
   document.getElementById('scan-ui').style.display = 'flex';
 
-  var sceneEl = document.querySelector('a-scene');
-  if (!sceneEl.hasLoaded) {
-    var arLoader = document.getElementById('ar-loader');
-    arLoader.style.display = 'flex';
-    sceneEl.addEventListener('loaded', function () {
-      arLoader.style.display = 'none';
-      detectTorchSupport();
-    }, { once: true });
-  } else {
-    detectTorchSupport();
-  }
+  detectTorchSupport();
 }
 
 // ── Scan → splash (back button) ───────────────────────────────
