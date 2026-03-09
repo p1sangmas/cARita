@@ -1,3 +1,41 @@
+// ── Camera-ready detection ─────────────────────────────────────
+// Poll for a live camera video track. When found (or after 15 s timeout),
+// hide the initialising spinner and reveal the "Tap to Start" button.
+(function () {
+  var shown = false;
+  var startTime = Date.now();
+  var TIMEOUT_MS = 15000;
+
+  function showStartBtn() {
+    if (shown) return;
+    shown = true;
+    var loader = document.getElementById('start-loader');
+    var btn    = document.getElementById('start-btn');
+    if (loader) loader.style.display = 'none';
+    if (btn)    btn.style.display = '';   // triggers CSS fade-up animation
+  }
+
+  var interval = setInterval(function () {
+    if (Date.now() - startTime > TIMEOUT_MS) {
+      clearInterval(interval);
+      showStartBtn();
+      return;
+    }
+    var videos = document.querySelectorAll('video');
+    for (var i = 0; i < videos.length; i++) {
+      var v = videos[i];
+      if (v.srcObject) {
+        var tracks = v.srcObject.getVideoTracks();
+        if (tracks.length > 0 && tracks[0].readyState === 'live') {
+          clearInterval(interval);
+          showStartBtn();
+          return;
+        }
+      }
+    }
+  }, 200);
+})();
+
 // ── Torch state ───────────────────────────────────────────────
 var torchActive = false;
 var torchTrack  = null;
@@ -401,7 +439,10 @@ document.addEventListener('DOMContentLoaded', function () {
       shareBtn.style.animation = '';
       shareBtn.style.display   = 'block';
 
-      video.play();
+      // play() returns a Promise — catch rejections so they don't surface as
+      // unhandled (AbortError is normal when play/pause race; NotSupportedError
+      // can occur on iOS if the video isn't ready yet).
+      video.play().catch(function() {});
       // Pre-generate story card blob so share is instant when user taps
       setTimeout(prepareStoryBlob, 600);
     });

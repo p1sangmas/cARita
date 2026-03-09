@@ -344,6 +344,31 @@ body {
 #torch-btn:active { background: rgba(255,255,255,0.22); }
 #torch-btn.torch-on { background: rgba(255,220,80,0.22); border-color: rgba(255,220,80,0.4); color: rgba(255,220,80,0.95); }
 
+/* ── Start loader (shown while camera initialises) ───────────── */
+#start-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 32px;
+  animation: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.35s both;
+}
+
+.start-loader-ring {
+  width: 28px;
+  height: 28px;
+  border: 2.5px solid rgba(255,255,255,0.15);
+  border-top-color: rgba(255,255,255,0.7);
+  border-radius: 50%;
+  animation: loader-spin 0.9s linear infinite;
+}
+
+.start-loader-text {
+  color: rgba(255,255,255,0.4);
+  font-size: 13px;
+  letter-spacing: 0.5px;
+}
+
 /* ── AR loader ───────────────────────────────────────────────── */
 #ar-loader { display: none; flex-direction: column; align-items: center; gap: 12px; }
 .ar-loader-ring {
