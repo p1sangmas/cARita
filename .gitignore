@@ -7,5 +7,9 @@ node_modules/
 # Wrangler local dev state (KV/R2 simulation, auth tokens)
 .wrangler/
 
+# Wrangler config — contains account-specific IDs (KV namespace, R2 bucket).
+# Copy wrangler.toml.example → wrangler.toml and fill in your own values.
+wrangler.toml
+
 # Compiled MindAR target file — lives in R2, not source code
 assets/*.mind
