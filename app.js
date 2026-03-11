@@ -397,6 +397,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var scanUI      = document.getElementById('scan-ui');
   var downloadBtn = document.getElementById('download-btn');
   var shareBtn    = document.getElementById('share-btn');
+  var videoLoader = document.getElementById('video-loader');
 
   document.querySelectorAll('[mindar-image-target]').forEach(function (target) {
     var video    = document.querySelector(target.dataset.video);
@@ -405,6 +406,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var textEl = target.querySelector('a-text');
     if (textEl && message) textEl.setAttribute('value', message);
+
+    var aVideoEl = target.querySelector('a-video');
 
     target.addEventListener('targetFound', function () {
       navigator.vibrate && navigator.vibrate(60);
@@ -429,6 +432,15 @@ document.addEventListener('DOMContentLoaded', function () {
       shareBtn.style.animation = '';
       shareBtn.style.display   = 'block';
 
+      // Hide video plane and show spinner until the first frame is ready.
+      // This prevents a black box appearing while the video buffers.
+      if (aVideoEl) aVideoEl.setAttribute('visible', 'false');
+      videoLoader.style.display = 'flex';
+      video.onplaying = function () {
+        if (aVideoEl) aVideoEl.setAttribute('visible', 'true');
+        videoLoader.style.display = 'none';
+      };
+
       // play() returns a Promise — catch rejections so they don't surface as
       // unhandled (AbortError is normal when play/pause race; NotSupportedError
       // can occur on iOS if the video isn't ready yet).
@@ -441,6 +453,8 @@ document.addEventListener('DOMContentLoaded', function () {
       scanUI.classList.remove('hidden');
       downloadBtn.style.display = 'none';
       shareBtn.style.display    = 'none';
+      videoLoader.style.display = 'none';
+      if (aVideoEl) aVideoEl.setAttribute('visible', 'false');
       currentVideo   = null;
       currentMessage = '';
       currentBlob    = null;
