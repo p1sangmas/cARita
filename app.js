@@ -429,6 +429,9 @@ document.addEventListener('DOMContentLoaded', function () {
       shareBtn.style.animation = '';
       shareBtn.style.display   = 'block';
 
+      // Trigger fetch (preload="none" means nothing is loaded until now).
+      // load() resets playback to the start so re-scans always begin from frame 0.
+      video.load();
       // play() returns a Promise — catch rejections so they don't surface as
       // unhandled (AbortError is normal when play/pause race; NotSupportedError
       // can occur on iOS if the video isn't ready yet).

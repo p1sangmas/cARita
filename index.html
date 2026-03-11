@@ -89,7 +89,7 @@
           var vid = document.createElement('video');
           vid.id = 'video-' + t.index;
           vid.src = '/r2/' + t.videoKey;           // e.g. /r2/targets/0/video.mp4
-          vid.setAttribute('preload', 'auto');
+          vid.setAttribute('preload', 'none');
           vid.setAttribute('playsinline', '');
           vid.setAttribute('muted', '');
           vid.setAttribute('loop', '');
