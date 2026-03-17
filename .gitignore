@@ -13,3 +13,5 @@ wrangler.toml
 
 # Compiled MindAR target file — lives in R2, not source code
 assets/*.mind
+
+CLAUDE.md
